@@ -1,16 +1,7 @@
 <script lang="ts">
   import { afterUpdate } from 'svelte'
   import { type ToWebviewMessage } from '../vscode'
-
-  interface ChatMessage {
-    role: 'user' | 'assistant' | 'error'
-    content: string
-  }
-
-  interface HistoryMessage {
-    role: 'user' | 'assistant'
-    content: string
-  }
+  import { readSse, extractResponseText, buildRequestHeaders, type ChatMessage, type HistoryMessage } from '../lib/chat.service'
 
   let messages: ChatMessage[] = []
   let history: HistoryMessage[] = []
@@ -39,12 +30,9 @@
     isStreaming = true
 
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`
-
       const response = await fetch(backendUrl, {
         method: 'POST',
-        headers,
+        headers: buildRequestHeaders(apiKey),
         body: JSON.stringify({ messages: history }),
       })
 
@@ -65,11 +53,7 @@
         }
       } else {
         const data = (await response.json()) as Record<string, unknown>
-        assistantText =
-          typeof data['message'] === 'string' ? data['message'] :
-          typeof data['content'] === 'string' ? data['content'] :
-          typeof data['text']    === 'string' ? data['text']    :
-          JSON.stringify(data)
+        assistantText = extractResponseText(data)
         messages = [...messages, { role: 'assistant', content: assistantText }]
       }
 
@@ -79,47 +63,6 @@
       history = history.slice(0, -1) // remove the failed user turn
     } finally {
       isStreaming = false
-    }
-  }
-
-  async function* readSse(response: Response): AsyncGenerator<string> {
-    const reader = response.body?.getReader()
-    if (!reader) return
-
-    const decoder = new TextDecoder()
-    let buffer = ''
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const payload = line.slice(6).trim()
-          if (payload === '[DONE]') return
-
-          try {
-            const parsed = JSON.parse(payload) as Record<string, unknown>
-            const text =
-              typeof parsed['text']    === 'string' ? parsed['text'] :
-              typeof parsed['content'] === 'string' ? parsed['content'] :
-              typeof parsed['delta']   === 'object' && parsed['delta'] !== null &&
-                typeof (parsed['delta'] as Record<string, unknown>)['text'] === 'string'
-                ? (parsed['delta'] as Record<string, unknown>)['text'] as string
-              : ''
-            if (text) yield text
-          } catch {
-            // non-JSON SSE line — ignore
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock()
     }
   }
 

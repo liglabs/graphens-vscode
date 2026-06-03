@@ -1,5 +1,5 @@
-/* Cheatsheet of VSCode theme variables */
-.monaco-workbench {
+/* Fallback VSCode CSS variables for browser preview (VS Code Dark+ palette) */
+:root {
     --vscode-foreground: #cccccc;
     --vscode-strongForeground: #ffffff;
     --vscode-disabledForeground: rgba(204, 204, 204, 0.5);

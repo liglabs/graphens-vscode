@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         chat: path.resolve(__dirname, 'src/chat/main.ts'),
         config: path.resolve(__dirname, 'src/config/main.ts'),
+        preview: path.resolve(__dirname, 'src/preview/main.ts'),
       },
       output: {
         entryFileNames: '[name].js',
