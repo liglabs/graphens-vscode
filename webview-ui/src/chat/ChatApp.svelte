@@ -1,6 +1,6 @@
 <script lang="ts">
   import { afterUpdate } from 'svelte'
-  import { type ToWebviewMessage } from './vscode'
+  import { type ToWebviewMessage } from '../vscode'
 
   interface ChatMessage {
     role: 'user' | 'assistant' | 'error'

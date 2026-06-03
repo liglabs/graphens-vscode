@@ -56,7 +56,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this.context.extensionUri, 'media', 'chat.js')
     )
     const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, 'media', 'chat.css')
+      vscode.Uri.joinPath(this.context.extensionUri, 'media', 'app.css')
     )
     const csp = `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource}; connect-src *;`
 
