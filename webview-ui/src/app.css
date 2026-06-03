@@ -1,10 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* VS Code sets a body margin; remove it so the chat fills the panel fully */
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+@import "tailwindcss";
+@plugin "daisyui";
