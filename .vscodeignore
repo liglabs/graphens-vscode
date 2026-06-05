@@ -6,5 +6,7 @@ src/**
 tsconfig.json
 **/*.map
 **/*.ts
-!out/**
+!dist/**
+webview-ui
+!webview-ui/dist/**
 node_modules/**

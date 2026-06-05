@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [svelte({ preprocess: vitePreprocess() }), tailwindcss()],
 
   build: {
-    outDir: path.resolve(__dirname, '../media/ui-build'),
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
       input: {

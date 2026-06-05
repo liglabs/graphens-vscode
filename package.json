@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -11,7 +11,7 @@
     "Chat"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "chatParticipants": [
       {
