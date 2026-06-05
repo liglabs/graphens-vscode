@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -24,6 +24,10 @@
           {
             "name": "debug_readme",
             "description": "Check how getReadme() works"
+          },
+          {
+            "name": "debug_graphens_files",
+            "description": "Check how getGraphensFiles() works"
           }
         ]
       }
@@ -83,6 +87,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "ufo": "^1.6.4",
     "zod": "^4.4.3"
   }
 }
