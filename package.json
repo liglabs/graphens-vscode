@@ -13,6 +13,15 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "chatParticipants": [
+      {
+        "id": "graphens-ai.tutor",
+        "isSticky": true,
+        "fullName": "Graphens AI Assistant",
+        "name": "graphens",
+        "description": "Assistant pour des étudiants en informatique."
+      }
+    ],
     "viewsContainers": {
       "secondarySidebar": [
         {
@@ -31,14 +40,7 @@
         }
       ]
     },
-    "commands": [
-      {
-        "command": "graphens-ai.clearChat",
-        "title": "Clear Chat",
-        "category": "Graphens AI",
-        "icon": "$(trash)"
-      }
-    ],
+    "commands": [],
     "menus": {
       "view/title": [
         {
@@ -49,19 +51,7 @@
       ]
     },
     "configuration": {
-      "title": "Graphens AI",
-      "properties": {
-        "graphens-ai.backendUrl": {
-          "type": "string",
-          "default": "",
-          "description": "URL of the AI backend. Expects POST with {messages} body; responds with JSON or text/event-stream."
-        },
-        "graphens-ai.apiKey": {
-          "type": "string",
-          "default": "",
-          "description": "Bearer token sent as Authorization header to the backend."
-        }
-      }
+      "title": "Graphens AI"
     }
   },
   "scripts": {
