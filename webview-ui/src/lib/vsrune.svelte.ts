@@ -1,18 +1,6 @@
 import { z } from 'zod'
-import { vscode, type ToWebviewMessage, type FromWebviewMessage } from '../vscode'
-
-const stateChangesBus = new EventTarget()
-
-const handleMessageEvents = (event: MessageEvent) => {
-    const msg = event.data as ToWebviewMessage
-    if (msg.type === 'stateLoaded') {
-      stateChangesBus.dispatchEvent(
-        new CustomEvent(`stateLoaded:${msg.key}`, { detail: msg.state })
-      )
-    }
-  }
-
-window.addEventListener('message', handleMessageEvents)
+import { vscode, type FromWebviewMessage } from '../vscode'
+import { stateChangesBus } from './stateBus'
 
 export interface VSRune<T> {
   value: T
@@ -34,12 +22,15 @@ export function vsrune<TSchema extends z.ZodTypeAny>(
 
   stateChangesBus.addEventListener(`stateLoaded:${key}`, sync)
 
+  $effect(() => {
+    vscode.postMessage({ type: 'stateChanged', key, value: state } satisfies FromWebviewMessage)
+  })
+
   return {
     get value(): z.infer<TSchema> {
       return state
     },
     set value(v: z.infer<TSchema>) {
-      vscode.postMessage({ type: 'stateChanged', key, value: state } satisfies FromWebviewMessage)
       state = v
     },
     sync() {
