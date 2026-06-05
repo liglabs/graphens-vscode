@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -19,7 +19,13 @@
         "isSticky": true,
         "fullName": "Graphens AI Assistant",
         "name": "graphens",
-        "description": "Assistant pour des étudiants en informatique."
+        "description": "Assistant pour des étudiants en informatique.",
+        "commands": [
+          {
+            "name": "debug_readme",
+            "description": "Check how getReadme() works"
+          }
+        ]
       }
     ],
     "viewsContainers": {
