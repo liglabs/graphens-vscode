@@ -1,3 +1,5 @@
+import * as fs from 'fs'
+import * as path from 'path'
 import * as vscode from 'vscode'
 import type { ToWebviewMessage, FromWebviewMessage } from './messages'
 
@@ -73,27 +75,26 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   }
 
   private buildHtml(webview: vscode.Webview): string {
-    const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, 'webview-ui', 'dist', 'chat.js')
+    const htmlPath = vscode.Uri.joinPath(
+      this.context.extensionUri,
+      'webview-ui', 'dist', 'chat', 'index.html'
     )
-    const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, 'webview-ui', 'dist', 'app.css')
-    )
-    const csp = `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource}; connect-src *;`
+    const htmlDir = path.dirname(htmlPath.fsPath)
 
-    return /* html */ `<!DOCTYPE html>
-<html lang="en" data-theme="vscode">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="${csp}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="${styleUri}">
-  <title>Graphens AI Chat</title>
-</head>
-<body>
-  <div id="app"></div>
-  <script src="${scriptUri}"></script>
-</body>
-</html>`
+    let html = fs.readFileSync(htmlPath.fsPath, 'utf-8')
+
+    html = html.replace(/(src|href)="([^"]+)"/g, (match, attr, val: string) => {
+      if (val.startsWith('http') || val.startsWith('vscode-') || val.startsWith('#') || val.startsWith('data:')) {
+        return match
+      }
+      const abs = path.resolve(htmlDir, val)
+      return `${attr}="${webview.asWebviewUri(vscode.Uri.file(abs))}"`
+    })
+
+    const csp = `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource}; connect-src *;`
+    return html.replace(
+      '<meta charset="UTF-8">',
+      `<meta charset="UTF-8">\n  <meta http-equiv="Content-Security-Policy" content="${csp}">`
+    )
   }
 }

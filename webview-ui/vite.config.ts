@@ -5,20 +5,17 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [svelte({ preprocess: vitePreprocess() }), tailwindcss()],
+  root: path.resolve(__dirname, 'src'),
+  base: './',
 
   build: {
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        chat: path.resolve(__dirname, 'src/chat/main.ts'),
-        config: path.resolve(__dirname, 'src/config/main.ts'),
-        preview: path.resolve(__dirname, 'src/preview/main.ts'),
-      },
-      output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].[hash].js',
-        assetFileNames: (info) => (info.names[0] ?? '').endsWith('.css') ? '[name].css' : '[name].[ext]',
+        chat: path.resolve(__dirname, 'src/chat/index.html'),
+        config: path.resolve(__dirname, 'src/config/index.html'),
+        preview: path.resolve(__dirname, 'src/preview/index.html'),
       },
     },
   },
