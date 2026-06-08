@@ -1,9 +1,11 @@
 import * as vscode from 'vscode'
 import BASE_PROMPT from '../BASE_PROMPT.md?raw'
+import RESPONSE_TO_CHEATER from '../RESPONSE_TO_CHEATER.md?raw'
 import {getReadme} from './context/getReadme.js'
 import {getGraphensFiles} from './context/getGraphensFiles.js'
 import { getOpenFiles } from './context/getOpenFiles'
 import { getHighlightedCode } from './context/getHighlightedCode'
+import { isCheating } from './guards/cheating'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -47,6 +49,15 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       stream.markdown(`Voici le code mis en évidence dans l\'éditeur : \n\n`)
       return stream.markdown(`\`\`\`json\n${JSON.stringify(highlightedCode, null, 2)}\n\`\`\``)
     }
+    case 'debug_cheating_guard': {
+      const isCheater = await isCheating(request.prompt, request.model, token)
+      return stream.markdown(`Cheating guard result: ${isCheater ? 'Cheater detected' : 'No cheating detected'}`)
+    }
+  }
+
+  if (await isCheating(request.prompt, request.model, token)) {
+    stream.markdown(RESPONSE_TO_CHEATER)
+    return
   }
 
   const [readme, graphensFiles, openFiles, highlightedCode] = await Promise.all([
