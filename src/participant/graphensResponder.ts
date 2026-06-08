@@ -9,6 +9,7 @@ import { getHighlightedCode } from './context/getHighlightedCode'
 import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
 import { errorExists } from './context/errorExists'
+import { getLanguageServerErrors } from './context/getLanguageServerErrors'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -70,6 +71,13 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       const compilerOutput = await runCompiler(request.model, getHistory(context), token)
       return stream.markdown(`**Compile command:** \`${compilerOutput.command}\`\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``)
     }
+    case 'debug_language_server_errors': {
+      const errors = await getLanguageServerErrors()
+      if (errors.length === 0) {
+        return stream.markdown('No language server diagnostics found for the active file.')
+      }
+      return stream.markdown(`\`\`\`json\n${JSON.stringify(errors, null, 2)}\n\`\`\``)
+    }
   }
 
   const history = getHistory(context)
@@ -82,13 +90,14 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     return
   }
 
-  const [readme, graphensFiles, openFiles, highlightedCode, compilerOutput] = await Promise.all([
+  const [readme, graphensFiles, openFiles, highlightedCode, languageServerErrors, compilerOutput] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
     getOpenFiles(),
     getHighlightedCode(),
+    getLanguageServerErrors(),
     (async () => {
-      if (!(await errorExists(request.model, request.prompt, token))) 
+      if (!(await errorExists(request.model, request.prompt, token)))
         return null
       return runCompiler(request.model, getHistory(context), token)
     })()
@@ -106,6 +115,9 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     highlightedCode 
       ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
       : 'Aucun code mis en évidence trouvé.',
+    languageServerErrors.length > 0
+      ? `Voici les erreurs du serveur de langage pour le fichier actif :\n\n\`\`\`json\n${JSON.stringify(languageServerErrors, null, 2)}\n\`\`\``
+      : 'Aucune erreur de serveur de langage détectée dans le fichier actif.',
     compilerOutput
       ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\n **Success:** ${compilerOutput.success}\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``
       : 'Aucune erreur de compilation détectée ou aucune commande de compilation suggérée.'

@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -48,6 +48,10 @@
           {
             "name": "debug_compiler",
             "description": "Check how runCompiler() works"
+          },
+          {
+            "name": "debug_language_server_errors",
+            "description": "Check language server diagnostics for the active file"
           }
         ]
       }
