@@ -2,6 +2,8 @@ import * as vscode from 'vscode'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { getReadme } from './getReadme'
+import { reportCompileCommandTool, reportCompileCommandSchema } from '../../tools/reportCompileCommand'
+import { parseToolCallFromStream } from '../../utils/parseToolCall'
 
 const execAsync = promisify(exec)
 
@@ -19,24 +21,6 @@ interface ProjectFileInfo {
   content: string
 }
 
-const COMPILE_COMMAND_TOOL: vscode.LanguageModelChatTool = {
-  name: 'report_compile_command',
-  description: 'Report the shell command to compile or type-check the project to detect errors',
-  inputSchema: {
-    type: 'object' as const,
-    properties: {
-      command: {
-        type: 'string',
-        description: 'The shell command to run (e.g. "npx tsc --noEmit", "mvn compile", "python -m py_compile src/main.py")'
-      },
-      reason: {
-        type: 'string',
-        description: 'One-sentence explanation of why this command was chosen'
-      }
-    },
-    required: ['command']
-  }
-}
 
 const PROJECT_FILE_PATTERNS: Array<{ pattern: string; platform: string }> = [
   { pattern: 'package.json', platform: 'Node.js' },
@@ -98,18 +82,12 @@ async function detectCompileCommand(
 
   const response = await model.sendRequest(
     messages,
-    { tools: [COMPILE_COMMAND_TOOL], toolMode: vscode.LanguageModelChatToolMode.Required },
+    { tools: [reportCompileCommandTool], toolMode: vscode.LanguageModelChatToolMode.Required },
     token
   )
 
-  for await (const part of response.stream) {
-    if (part instanceof vscode.LanguageModelToolCallPart && part.name === COMPILE_COMMAND_TOOL.name) {
-      const input = part.input as { command?: string }
-      return input.command ?? null
-    }
-  }
-
-  return null
+  const result = await parseToolCallFromStream(response, reportCompileCommandTool.name, reportCompileCommandSchema)
+  return result?.command ?? null
 }
 
 export async function runCompiler(

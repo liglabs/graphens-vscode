@@ -1,4 +1,6 @@
 import * as vscode from 'vscode'
+import { reportCheatingDetectionTool, reportCheatingDetectionSchema } from '../../tools/reportCheatingDetection'
+import { parseToolCallFromStream } from '../../utils/parseToolCall'
 
 const CHEATING_PATTERNS = [
   // --- English: instruction override ---
@@ -58,25 +60,6 @@ const CHEATING_PATTERNS = [
   /complète?\s+(cet?te?\s+)?(exercice|assignation|devoir|tâche)\s+(pour\s+moi|à\s+ma\s+place)/i,
 ]
 
-const DETECTION_TOOL: vscode.LanguageModelChatTool = {
-  name: 'report_cheating_detection',
-  description: 'Report whether the analyzed student prompt is a cheating attempt',
-  inputSchema: {
-    type: 'object' as const,
-    properties: {
-      isCheating: {
-        type: 'boolean',
-        description: 'True if the prompt attempts to bypass instructions or extract direct answers'
-      },
-      reason: {
-        type: 'string',
-        description: 'Brief explanation of the reasoning (1 sentence max)'
-      }
-    },
-    required: ['isCheating']
-  }
-}
-
 async function verifyWithModel(
   prompt: string,
   model: vscode.LanguageModelChat,
@@ -98,20 +81,14 @@ async function verifyWithModel(
   const response = await model.sendRequest(
     messages,
     {
-      tools: [DETECTION_TOOL],
+      tools: [reportCheatingDetectionTool],
       toolMode: vscode.LanguageModelChatToolMode.Required
     },
     token
   )
 
-  for await (const part of response.stream) {
-    if (part instanceof vscode.LanguageModelToolCallPart && part.name === DETECTION_TOOL.name) {
-      const input = part.input as { isCheating?: boolean }
-      return input.isCheating === true
-    }
-  }
-
-  return false
+  const result = await parseToolCallFromStream(response, reportCheatingDetectionTool.name, reportCheatingDetectionSchema)
+  return result?.isCheating === true
 }
 
 export async function isCheating(

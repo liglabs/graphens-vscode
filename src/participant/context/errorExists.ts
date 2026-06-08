@@ -1,19 +1,6 @@
 import * as vscode from 'vscode'
-
-const ERROR_DETECTION_TOOL: vscode.LanguageModelChatTool = {
-  name: 'report_error_exists',
-  description: 'Report whether the user is describing or asking about a compilation/type error in their project',
-  inputSchema: {
-    type: 'object' as const,
-    properties: {
-      hasErrors: {
-        type: 'boolean',
-        description: 'true if the user prompt indicates they are facing or asking about a compilation, type, or build error'
-      }
-    },
-    required: ['hasErrors']
-  }
-}
+import { reportErrorExistsTool, reportErrorExistsSchema } from '../../tools/reportErrorExists'
+import { parseToolCallFromStream } from '../../utils/parseToolCall'
 
 export async function errorExists(
   model: vscode.LanguageModelChat,
@@ -30,16 +17,10 @@ export async function errorExists(
 
   const response = await model.sendRequest(
     messages,
-    { tools: [ERROR_DETECTION_TOOL], toolMode: vscode.LanguageModelChatToolMode.Required },
+    { tools: [reportErrorExistsTool], toolMode: vscode.LanguageModelChatToolMode.Required },
     token
   )
 
-  for await (const part of response.stream) {
-    if (part instanceof vscode.LanguageModelToolCallPart && part.name === ERROR_DETECTION_TOOL.name) {
-      const input = part.input as { hasErrors?: boolean }
-      return input.hasErrors ?? false
-    }
-  }
-
-  return false
+  const result = await parseToolCallFromStream(response, reportErrorExistsTool.name, reportErrorExistsSchema)
+  return result?.hasErrors ?? false
 }
