@@ -132,11 +132,13 @@ export async function runCompiler(
     const { stdout, stderr } = await execAsync(command, { cwd, timeout: 60_000 })
     const output = [stdout, stderr].filter(Boolean).join('\n')
     outputChannel.append(output)
+    outputChannel.appendLine('\n[Process completed]')
     return { command, output, success: true }
   } catch (err: unknown) {
     const execError = err as { stdout?: string; stderr?: string; message?: string }
     const output = [execError.stdout, execError.stderr, execError.message].filter(Boolean).join('\n')
     outputChannel.append(output)
+    outputChannel.appendLine('\n[Process completed with errors]')
     return { command, output, success: false }
   }
 }

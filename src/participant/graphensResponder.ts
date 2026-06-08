@@ -107,7 +107,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
       : 'Aucun code mis en évidence trouvé.',
     compilerOutput
-      ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``
+      ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\n **Success:** ${compilerOutput.success}\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``
       : 'Aucune erreur de compilation détectée ou aucune commande de compilation suggérée.'
   ].join('\n\n ============ \n\n')
 
