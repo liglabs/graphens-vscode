@@ -3,6 +3,7 @@ import BASE_PROMPT from '../BASE_PROMPT.md?raw'
 import {getReadme} from './context/getReadme.js'
 import {getGraphensFiles} from './context/getGraphensFiles.js'
 import { getOpenFiles } from './context/getOpenFiles'
+import { getHighlightedCode } from './context/getHighlightedCode'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -38,12 +39,21 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       }
       return
     }
+    case 'debug_highlighted_code': {
+      const highlightedCode = await getHighlightedCode()
+      if (!highlightedCode) {
+        return stream.markdown('No highlighted code found.')
+      }
+      stream.markdown(`Voici le code mis en évidence dans l\'éditeur : \n\n`)
+      return stream.markdown(`\`\`\`json\n${JSON.stringify(highlightedCode, null, 2)}\n\`\`\``)
+    }
   }
 
-  const [readme, graphensFiles, openFiles] = await Promise.all([
+  const [readme, graphensFiles, openFiles, highlightedCode] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
-    getOpenFiles()
+    getOpenFiles(),
+    getHighlightedCode()
   ])
 
   const prompt = [
@@ -54,7 +64,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     'Voici la liste des fichiers .graphens markdown trouvés dans l\'espace de travail :\n\n',
     ...graphensFiles.map(file => `---\ntitle: ${file.name}\n---\n${file.content}`),
     'Voici le contenu de tous les fichiers ouverts dans l\'éditeur :\n\n',
-    ...openFiles.map(file => `### ${file.path}\n\n${file.content}`)
+    ...openFiles.map(file => `### ${file.path}\n\n${file.content}`),
+    highlightedCode 
+      ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
+      : 'Aucun code mis en évidence trouvé.'
   ].join('\n\n ============ \n\n')
 
   const messages = [vscode.LanguageModelChatMessage.User(prompt)];

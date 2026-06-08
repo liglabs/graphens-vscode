@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -32,6 +32,10 @@
           {
             "name": "debug_open_files",
             "description": "Check how getOpenFiles() works"
+          },
+          {
+            "name": "debug_highlighted_code",
+            "description": "Check how getHighlightedCode() works"
           }
         ]
       }
