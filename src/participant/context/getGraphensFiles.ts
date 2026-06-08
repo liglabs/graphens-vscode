@@ -6,7 +6,7 @@ interface GraphensFile {
   content: string
 }
 
-export async function getReadme(): Promise<GraphensFile[]> {
+export async function getGraphensFiles(): Promise<GraphensFile[]> {
   const docs = await workspace.findFiles('.graphens/**.md', '**/node_modules/**', 1)
   const files: GraphensFile[] = []
   for (const doc of docs) {

@@ -1,5 +1,7 @@
 import * as vscode from 'vscode'
-
+import BASE_PROMPT from '../BASE_PROMPT.md?raw'
+import {getReadme} from './context/getReadme.js'
+import {getGraphensFiles} from './context/getGraphensFiles.js'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -8,15 +10,13 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   token: vscode.CancellationToken
 ): Promise<void> => {
   if (request.command === 'debug_readme') {
-    const { getReadme } = await import('./context/getReadme.js')
     const readme = await getReadme()
     if (readme === '') {
       return stream.markdown('No README.md file found in the workspace.')
     }
     return stream.markdown(readme)
   } else if (request.command === 'debug_graphens_files') {
-    const { getReadme } = await import('./context/getGraphensFiles.js')
-    const files = await getReadme()
+    const files = await getGraphensFiles()
     if (files.length === 0) {
       return stream.markdown('No .graphens markdown files found in the workspace.')
     }
@@ -24,5 +24,28 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       stream.markdown(`### ${file.name}\n\n${file.content}`)
     }
     return
+  }
+
+  const [readme, graphensFiles] = await Promise.all([
+    getReadme(),
+    getGraphensFiles()
+  ])
+
+  const prompt = [
+    BASE_PROMPT,
+    readme 
+      ? `Voici le contenu du README.md trouvé dans l'espace de travail :\n\n${readme}` 
+      : 'Aucun fichier README.md trouvé dans l\'espace de travail.',
+    'Voici la liste des fichiers .graphens markdown trouvés dans l\'espace de travail :\n\n',
+    ...graphensFiles.map(file => `---\ntitle: ${file.name}\n---\n${file.content}`)
+  ].join('\n\n ============ \n\n')
+
+  const messages = [vscode.LanguageModelChatMessage.User(prompt)];
+  messages.push(vscode.LanguageModelChatMessage.User(request.prompt));
+
+  const chatResponse = await request.model.sendRequest(messages, {}, token);
+
+  for await (const fragment of chatResponse.text) {
+    stream.markdown(fragment);
   }
 };
