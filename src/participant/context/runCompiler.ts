@@ -90,15 +90,35 @@ async function detectCompileCommand(
   return result?.command ?? null
 }
 
+export function getCompileCommandFromHistory(history: vscode.LanguageModelChatMessage[]): string | null {
+  for (const message of [...history].reverse()) {
+    if (message.role === vscode.LanguageModelChatMessageRole.Assistant) {
+      const text = message.content
+        .filter((part): part is vscode.LanguageModelTextPart => part instanceof vscode.LanguageModelTextPart)
+        .map(part => part.value)
+        .join('')
+      const match = text.match(/\*\*Compile command:\*\* `([^`]+)`/)
+      if (match) {
+        return match[1] ?? null
+      }
+    }
+  }
+  return null
+}
+
 export async function runCompiler(
   model: vscode.LanguageModelChat,
+  history: vscode.LanguageModelChatMessage[],
   token: vscode.CancellationToken
 ): Promise<CompilerResult> {
   const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
 
-  const [readme, projectFiles] = await Promise.all([getReadme(), findProjectFiles()])
+  let command: string | null = getCompileCommandFromHistory(history)
 
-  const command = await detectCompileCommand(model, projectFiles, readme, token)
+  if (!command) {
+    const [readme, projectFiles] = await Promise.all([getReadme(), findProjectFiles()])
+    command = await detectCompileCommand(model, projectFiles, readme, token)
+  }
 
   if (!command) {
     return { command: '', output: 'Could not determine a compile command for this project.', success: false }

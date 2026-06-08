@@ -3,10 +3,12 @@ import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
 import {getReadme} from './context/getReadme.js'
 import {getGraphensFiles} from './context/getGraphensFiles.js'
+import { runCompiler } from './context/runCompiler'
 import { getOpenFiles } from './context/getOpenFiles'
 import { getHighlightedCode } from './context/getHighlightedCode'
 import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
+import { errorExists } from './context/errorExists'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -64,6 +66,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       }
       return
     }
+    case 'debug_compiler': {
+      const compilerOutput = await runCompiler(request.model, getHistory(context), token)
+      return stream.markdown(`**Compile command:** \`${compilerOutput.command}\`\n\nCompiler output: \`\`\`shell\n${compilerOutput.output}\n\`\`\``)
+    }
   }
 
   const history = getHistory(context)
@@ -76,11 +82,16 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     return
   }
 
-  const [readme, graphensFiles, openFiles, highlightedCode] = await Promise.all([
+  const [readme, graphensFiles, openFiles, highlightedCode, compilerOutput] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
     getOpenFiles(),
-    getHighlightedCode()
+    getHighlightedCode(),
+    (async () => {
+      if (!(await errorExists(request.model, request.prompt, token))) 
+        return null
+      return runCompiler(request.model, getHistory(context), token)
+    })()
   ])
 
   const prompt = [
@@ -94,7 +105,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     ...openFiles.map(file => `### ${file.path}\n\n${file.content}`),
     highlightedCode 
       ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
-      : 'Aucun code mis en évidence trouvé.'
+      : 'Aucun code mis en évidence trouvé.',
+    compilerOutput
+      ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\nCompiler output: \`\`\`shell\n${compilerOutput.output}\n\`\`\``
+      : 'Aucune erreur de compilation détectée ou aucune commande de compilation suggérée.'
   ].join('\n\n ============ \n\n')
 
   const messages = [vscode.LanguageModelChatMessage.User(prompt)];
