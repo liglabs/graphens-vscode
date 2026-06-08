@@ -5,6 +5,7 @@ import {getReadme} from './context/getReadme.js'
 import {getGraphensFiles} from './context/getGraphensFiles.js'
 import { getOpenFiles } from './context/getOpenFiles'
 import { getHighlightedCode } from './context/getHighlightedCode'
+import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
@@ -53,9 +54,24 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       const isCheater = await isCheating(request.prompt, request.model, token)
       return stream.markdown(`Cheating guard result: ${isCheater ? 'Cheater detected' : 'No cheating detected'}`)
     }
+    case 'debug_history': {
+      const history = getHistory(context)
+      if (history.length === 0) {
+        return stream.markdown('No chat history found.')
+      }
+      for (const message of history) {
+        stream.markdown(`### ${message.role}\n\n${message.content}\n\n`)
+      }
+      return
+    }
   }
 
-  if (await isCheating(request.prompt, request.model, token)) {
+  const history = getHistory(context)
+
+  const cheatingResponseSent = history
+    .some(message => message.role === vscode.LanguageModelChatMessageRole.Assistant && message.content.toString() === RESPONSE_TO_CHEATER)
+
+  if (cheatingResponseSent || await isCheating(request.prompt, request.model, token)) {
     stream.markdown(RESPONSE_TO_CHEATER)
     return
   }
@@ -82,6 +98,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   ].join('\n\n ============ \n\n')
 
   const messages = [vscode.LanguageModelChatMessage.User(prompt)];
+  messages.push(...history);
   messages.push(vscode.LanguageModelChatMessage.User(request.prompt));
 
   const chatResponse = await request.model.sendRequest(messages, {}, token);

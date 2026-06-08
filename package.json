@@ -2,7 +2,7 @@
   "name": "graphens-ai",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -40,6 +40,10 @@
           {
             "name": "debug_cheating_guard",
             "description": "Check how isCheating() works"
+          },
+          {
+            "name": "debug_history",
+            "description": "Check how getHistory() works"
           }
         ]
       }
