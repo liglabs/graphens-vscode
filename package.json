@@ -1,5 +1,5 @@
 {
-  "name": "graphens-ai",
+  "name": "graphens-vscode",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
   "version": "0.2.8",
