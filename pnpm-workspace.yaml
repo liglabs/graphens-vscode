@@ -7,3 +7,6 @@ onlyBuiltDependencies:
   - svelte-preprocess
 
 minimumReleaseAge: 20160
+
+allowBuilds:
+  esbuild: true

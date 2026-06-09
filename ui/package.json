@@ -1,5 +1,5 @@
 {
-  "name": "graphens-ai-webview",
+  "name": "graphens-vscode-ui",
   "private": true,
   "type": "module",
   "scripts": {

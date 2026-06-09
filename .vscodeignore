@@ -1,5 +1,7 @@
 .vscode/**
 .vscode-test/**
+.turbo/**
+
 src/**
 .gitignore
 .eslintrc.json
@@ -7,6 +9,6 @@ tsconfig.json
 **/*.map
 **/*.ts
 !dist/**
-webview-ui
-!webview-ui/dist/**
+ui
+!ui/dist/**
 node_modules/**
