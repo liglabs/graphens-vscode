@@ -3,6 +3,9 @@
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
   "version": "0.2.8",
+  "repository": {
+    "url": "https://github.com/LigLabs/graphens-vscode"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },
