@@ -1,5 +1,12 @@
 # graphens-vscode
 
+## 0.3.2
+
+### Patch Changes
+
+- b6da013: Add step to retrieve package version for GitHub release tagging
+- f39a617: Fix condition for creating GitHub release based on changeset output
+
 ## 0.3.1
 
 ### Patch Changes
