@@ -1,5 +1,11 @@
 # graphens-vscode
 
+## 0.3.1
+
+### Patch Changes
+
+- 6eb7c47: Enhance release workflow to include publishing to npm and creating GitHub releases
+
 ## 0.3.0
 
 ### Minor Changes
