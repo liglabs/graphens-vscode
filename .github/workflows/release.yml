@@ -41,7 +41,7 @@ jobs:
           publish: pnpm package
 
       - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.outputs.hasChangesets == 'false'
         uses: softprops/action-gh-release@v1
         with:
           files: '*.vsix'
