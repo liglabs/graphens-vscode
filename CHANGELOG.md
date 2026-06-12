@@ -1,5 +1,11 @@
 # graphens-vscode
 
+## 0.4.0
+
+### Minor Changes
+
+- 391be67: Student blocked tracker
+
 ## 0.3.2
 
 ### Patch Changes
