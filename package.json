@@ -14,7 +14,9 @@
     "AI",
     "Chat"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "chatParticipants": [
@@ -80,13 +82,7 @@
     },
     "commands": [],
     "menus": {
-      "view/title": [
-        {
-          "command": "graphens-ai.clearChat",
-          "when": "view == graphens-ai.chat",
-          "group": "navigation"
-        }
-      ]
+      "view/title": []
     },
     "configuration": {
       "title": "Graphens AI"
@@ -108,16 +104,18 @@
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",
     "@vscode/test-electron": "^2.5.2",
+    "consola": "^3.4.2",
     "eslint": "^10.4.0",
     "mocha": "^11.7.5",
+    "rxjs": "^7.8.2",
     "turbo": "^2.9.14",
     "typescript": "^6.0.3",
     "ufo": "^1.6.4",
-    "rxjs": "^7.8.2",
     "vite": "^8.0.13",
     "zod": "^4.4.3"
   },
   "bundledDependencies": [
+    "consola",
     "ufo",
     "rxjs",
     "zod"

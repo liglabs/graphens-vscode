@@ -1,6 +1,6 @@
-import { Subject, filter, distinctUntilChanged, switchMap, timer, map } from 'rxjs'
+import { Subject, filter, distinctUntilChanged, switchMap, timer, map, tap } from 'rxjs'
 import { parseFilename } from 'ufo';
-
+import logger from '../logger';
 import * as vscode from 'vscode'
 
 function getFirstLine(event: vscode.TextDocumentChangeEvent): number | undefined {
@@ -20,6 +20,7 @@ function anchorChanged(prev: AnchorKey, next: AnchorKey): boolean {
 }
 
 export function startBlockedTracker(): vscode.Disposable {
+  logger.info('Starting blocked tracker')
   const docChanges$ = new Subject<vscode.TextDocumentChangeEvent>()
   const disposable = vscode.workspace.onDidChangeTextDocument((event) => docChanges$.next(event))
 
@@ -27,8 +28,13 @@ export function startBlockedTracker(): vscode.Disposable {
     // Drop no-content events (e.g. dirty-state changes)
     filter(event => event.contentChanges.length > 0),
 
+    // Drop extension logs
+    filter(event => event.document.fileName !== 'exthost'),
+
     // Compute the anchor key for this event
     filter(event => getFirstLine(event) !== undefined),
+
+    tap(event => logger.debug('Doc changed : ', event) ),
 
     // Only propagate when the anchor actually changes (different file or >10 lines away)
     distinctUntilChanged((prev, curr) => {

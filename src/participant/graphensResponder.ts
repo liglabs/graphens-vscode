@@ -17,6 +17,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   stream: vscode.ChatResponseStream,
   token: vscode.CancellationToken
 ): Promise<void> => {
+  console.log('Graphens responding to : ', request.prompt)
+
   switch (request.command) {
     case 'debug_readme':{
       const readme = await getReadme()
