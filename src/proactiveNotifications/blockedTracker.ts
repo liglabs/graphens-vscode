@@ -55,7 +55,7 @@ export function startBlockedTracker(): vscode.Disposable {
     const file = anchorEvent.document.fileName;
 
     vscode.window.showInformationMessage(
-      `Vous modifiez autour de la ligne ${line! + 1} dans "${file}" depuis 5 minutes. Besoin d'aide ?`,
+      `Vous modifiez autour de la ligne ${line! + 1} dans "${parseFilename(file)}" depuis 5 minutes. Besoin d'aide ?`,
       'Demander à l\'IA',
       'Fermer'
     ).then(res => {
