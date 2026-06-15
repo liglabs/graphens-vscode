@@ -123,5 +123,8 @@
     "ufo",
     "rxjs",
     "zod"
-  ]
+  ],
+  "dependencies": {
+    "@graphens/schemas": "github:liglabs/graphens-schemas"
+  }
 }

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@graphens/schemas':
+        specifier: github:liglabs/graphens-schemas
+        version: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.0
@@ -331,6 +335,10 @@ packages:
   '@eslint/plugin-kit@0.7.1':
     resolution: {integrity: sha512-rZAP3aVgB9ds9KOeUSL+zZ21hPmo8dh6fnIFwRQj5EAZl9gzR7wxYbYXYysAM8CTqGmUGyp2S4kUdV17MnGuWQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@graphens/schemas@https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8':
+    resolution: {gitHosted: true, integrity: sha512-V6wQHgCChdIIS6nqFYNEr/jY7/sRmGSl5oAH8Gx3N6BEtI0KL8zO1keaCjrrFvb7EgA5fvV+Ke400GNqn5ksYA==, tarball: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8}
+    version: 1.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2382,6 +2390,10 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
+
+  '@graphens/schemas@https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8':
+    dependencies:
+      zod: 4.4.3
 
   '@humanfs/core@0.19.2':
     dependencies:
