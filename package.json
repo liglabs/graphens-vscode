@@ -111,6 +111,7 @@
     "consola": "^3.4.2",
     "eslint": "^10.4.0",
     "mocha": "^11.7.5",
+    "ofetch": "^1.5.1",
     "rxjs": "^7.8.2",
     "turbo": "^2.9.14",
     "typescript": "^6.0.3",
@@ -122,7 +123,8 @@
     "consola",
     "ufo",
     "rxjs",
-    "zod"
+    "zod",
+    "ofetch"
   ],
   "dependencies": {
     "@graphens/schemas": "github:liglabs/graphens-schemas"
