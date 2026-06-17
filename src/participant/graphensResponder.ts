@@ -13,6 +13,7 @@ import { getLanguageServerErrors } from './context/getLanguageServerErrors'
 import { RagService } from '../utils/rag'
 import logger from '../logger'
 import { getCourseContent } from './context/getCourseContent'
+import { getFilesByLink } from './context/getFilesByLink'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -112,7 +113,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     highlightedCode, 
     languageServerErrors, 
     compilerOutput, 
-    courseContent
+    courseContent,
+    mentionedFiles
   ] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
@@ -124,7 +126,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
         return null
       return runCompiler(request.model, getHistory(context), token)
     })(),
-    getCourseContent(request.prompt)
+    getCourseContent(request.prompt),
+    getFilesByLink(request.prompt)
   ])
 
   const prompt = [
@@ -138,6 +141,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     ...openFiles.map(file => `### ${file.path}\n\n${file.content}`),
     'Voici le contenu du cours pertinent: \n\n',
     ...courseContent.map(chunk => `## ${chunk.titre} \n\n ${chunk.texte}`),
+    'Voici les fichiers mentionnés par l\'étudiant',
+    ...mentionedFiles.map(file => `### ${file.original}\n\n${file.content}`),
     highlightedCode 
       ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
       : 'Aucun code mis en évidence trouvé.',
