@@ -2,7 +2,7 @@
   "name": "graphens-vscode",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "packageManager": "pnpm@11.5.2",
   "repository": {
     "url": "https://github.com/LigLabs/graphens-vscode"
@@ -63,7 +63,9 @@
             "name": "debug_rag",
             "description": ""
           },
-          { "name": "debug_mentioned_files" }
+          {
+            "name": "debug_mentioned_files"
+          }
         ]
       }
     ],
