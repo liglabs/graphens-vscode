@@ -1,5 +1,12 @@
 # graphens-vscode
 
+## 0.5.0
+
+### Minor Changes
+
+- 3ebed5a: Charger les fichiers par les liens dans prompt
+- 3ebed5a: Supporter le serveur RAG
+
 ## 0.4.0
 
 ### Minor Changes
