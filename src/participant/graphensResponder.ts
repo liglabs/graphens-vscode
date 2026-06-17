@@ -85,7 +85,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     }
     case 'debug_rag': {
       const rag = new RagService()
-      console.info(request.prompt)
+      logger.info(request.prompt)
       const response = await rag.ask({
         question: request.prompt,
         nbResultats: 5
