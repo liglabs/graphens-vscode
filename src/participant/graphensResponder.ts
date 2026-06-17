@@ -10,6 +10,10 @@ import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
 import { errorExists } from './context/errorExists'
 import { getLanguageServerErrors } from './context/getLanguageServerErrors'
+import { RagService } from '../utils/rag'
+import logger from '../logger'
+import { getCourseContent } from './context/getCourseContent'
+import { getFilesByLink } from './context/getFilesByLink'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -64,8 +68,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       if (history.length === 0) {
         return stream.markdown('No chat history found.')
       }
+      logger.info(context.history)
+      logger.info(history)
       for (const message of history) {
-        stream.markdown(`### ${message.role}\n\n${message.content}\n\n`)
+        stream.markdown(`### ${message.role}\n\n${message.content.join('')}\n\n`)
       }
       return
     }
@@ -80,6 +86,17 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       }
       return stream.markdown(`\`\`\`json\n${JSON.stringify(errors, null, 2)}\n\`\`\``)
     }
+    case 'debug_rag': {
+      logger.info(request.prompt)
+      const response = await getCourseContent(request.prompt)
+      logger.info(response)
+      return stream.markdown('Fetched')
+    }
+    case 'debug_mentioned_files': {
+      const files = await getFilesByLink(request.prompt)
+      logger.info('Mentioned files : ', files)
+      return stream.markdown('Fetched files are in the console')
+    }
   }
 
   const history = getHistory(context)
@@ -92,7 +109,16 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     return
   }
 
-  const [readme, graphensFiles, openFiles, highlightedCode, languageServerErrors, compilerOutput] = await Promise.all([
+  const [
+    readme, 
+    graphensFiles, 
+    openFiles, 
+    highlightedCode, 
+    languageServerErrors, 
+    compilerOutput, 
+    courseContent,
+    mentionedFiles
+  ] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
     getOpenFiles(),
@@ -102,7 +128,9 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       if (!(await errorExists(request.model, request.prompt, token)))
         return null
       return runCompiler(request.model, getHistory(context), token)
-    })()
+    })(),
+    getCourseContent(request.prompt),
+    getFilesByLink(request.prompt)
   ])
 
   const prompt = [
@@ -114,6 +142,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     ...graphensFiles.map(file => `---\ntitle: ${file.name}\n---\n${file.content}`),
     'Voici le contenu de tous les fichiers ouverts dans l\'éditeur :\n\n',
     ...openFiles.map(file => `### ${file.path}\n\n${file.content}`),
+    'Voici le contenu du cours pertinent: \n\n',
+    ...courseContent.map(chunk => `## ${chunk.titre} \n\n ${chunk.texte}`),
+    'Voici les fichiers mentionnés par l\'étudiant',
+    ...mentionedFiles.map(file => `### ${file.original}\n\n${file.content}`),
     highlightedCode 
       ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}` 
       : 'Aucun code mis en évidence trouvé.',

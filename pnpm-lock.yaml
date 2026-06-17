@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@graphens/schemas':
+        specifier: github:liglabs/graphens-schemas
+        version: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.0
@@ -41,6 +45,9 @@ importers:
       mocha:
         specifier: ^11.7.5
         version: 11.7.5
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -331,6 +338,10 @@ packages:
   '@eslint/plugin-kit@0.7.1':
     resolution: {integrity: sha512-rZAP3aVgB9ds9KOeUSL+zZ21hPmo8dh6fnIFwRQj5EAZl9gzR7wxYbYXYysAM8CTqGmUGyp2S4kUdV17MnGuWQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@graphens/schemas@https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8':
+    resolution: {gitHosted: true, integrity: sha512-V6wQHgCChdIIS6nqFYNEr/jY7/sRmGSl5oAH8Gx3N6BEtI0KL8zO1keaCjrrFvb7EgA5fvV+Ke400GNqn5ksYA==, tarball: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8}
+    version: 1.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1059,6 +1070,9 @@ packages:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
 
+  destr@2.0.5:
+    resolution: {integrity: sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA==}
+
   detect-indent@6.1.0:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
@@ -1582,6 +1596,12 @@ packages:
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+
+  node-fetch-native@1.6.7:
+    resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
+
+  ofetch@1.5.1:
+    resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
 
   onetime@7.0.0:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
@@ -2383,6 +2403,10 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
+  '@graphens/schemas@https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8':
+    dependencies:
+      zod: 4.4.3
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -2993,6 +3017,8 @@ snapshots:
 
   deepmerge@4.3.1: {}
 
+  destr@2.0.5: {}
+
   detect-indent@6.1.0: {}
 
   detect-libc@2.1.2: {}
@@ -3548,6 +3574,14 @@ snapshots:
   nanoid@3.3.12: {}
 
   natural-compare@1.4.0: {}
+
+  node-fetch-native@1.6.7: {}
+
+  ofetch@1.5.1:
+    dependencies:
+      destr: 2.0.5
+      node-fetch-native: 1.6.7
+      ufo: 1.6.4
 
   onetime@7.0.0:
     dependencies:
