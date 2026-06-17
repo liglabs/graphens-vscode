@@ -10,6 +10,8 @@ import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
 import { errorExists } from './context/errorExists'
 import { getLanguageServerErrors } from './context/getLanguageServerErrors'
+import { RagService } from '../utils/rag'
+import logger from '../logger'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -79,6 +81,16 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
         return stream.markdown('No language server diagnostics found for the active file.')
       }
       return stream.markdown(`\`\`\`json\n${JSON.stringify(errors, null, 2)}\n\`\`\``)
+    }
+    case 'debug_rag': {
+      const rag = new RagService()
+      console.info(request.prompt)
+      const response = await rag.ask({
+        question: request.prompt,
+        nbResultats: 5
+      })
+      logger.info(response)
+      return stream.markdown('Fetched')
     }
   }
 

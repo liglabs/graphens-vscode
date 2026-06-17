@@ -58,6 +58,10 @@
           {
             "name": "debug_language_server_errors",
             "description": "Check language server diagnostics for the active file"
+          },
+          {
+            "name": "debug_rag",
+            "description": ""
           }
         ]
       }
