@@ -62,7 +62,8 @@
           {
             "name": "debug_rag",
             "description": ""
-          }
+          },
+          { "name": "debug_mentioned_files" }
         ]
       }
     ],

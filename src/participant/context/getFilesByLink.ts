@@ -2,6 +2,7 @@
 
 import path from "path";
 import * as vscode from "vscode";
+import logger from "../../logger";
 
 type LinkResult = {
 	original: string;
@@ -37,6 +38,29 @@ export async function getFilesByLink(prompt: string, workspaceRoot?: string): Pr
 	const projectFiles: Array<{ original: string; uri: vscode.Uri; resolvedPath: string; isAbsolute: boolean }> = [];
 	const webFiles: Array<{ original: string; url: string }> = [];
 
+	function normalizeForCompare(p: string) {
+		let np = path.resolve(p);
+		// Normalize path separators
+		np = path.normalize(np);
+		// On Windows, lowercase only the drive letter (keep rest as-is)
+		if (process.platform === 'win32') {
+			np = np.charAt(0).toLowerCase() + np.slice(1)
+		}
+		// Ensure trailing separator for directory comparison
+		if (!np.endsWith(path.sep)) np = np + path.sep;
+		return np;
+	}
+
+	function isPathInside(childPath: string, parentPath: string) {
+		try {
+			const nc = normalizeForCompare(childPath);
+			const np = normalizeForCompare(parentPath);
+			return nc.startsWith(np) || nc === np;
+		} catch (e) {
+			return false;
+		}
+	}
+
 	// First pass: classify tokens into projectFiles and webFiles (do not read yet)
 	for (const token of tokens) {
 		if (/^https?:\/\//i.test(token)) {
@@ -46,10 +70,13 @@ export async function getFilesByLink(prompt: string, workspaceRoot?: string): Pr
 
 		const isAbsolute = path.isAbsolute(token) || /^[A-Za-z]:[\\/]/.test(token);
 		if (isAbsolute) {
+			logger.info('Checking abs path : ', token)
+			logger.info('Root : ', root)
+			logger.info('WF : ', workspaceFolders)
 			const resolvedAbs = path.resolve(token);
 			const insideWorkspace = workspaceFolders
-				? workspaceFolders.some((wf) => resolvedAbs.startsWith(wf.uri.fsPath + path.sep) || resolvedAbs === wf.uri.fsPath)
-				: resolvedAbs.startsWith(root + path.sep) || resolvedAbs === root;
+				? workspaceFolders.some((wf) => isPathInside(resolvedAbs, wf.uri.fsPath))
+				: isPathInside(resolvedAbs, root);
 
 			if (insideWorkspace) {
 				projectFiles.push({ original: token, uri: vscode.Uri.file(resolvedAbs), resolvedPath: resolvedAbs, isAbsolute: true });

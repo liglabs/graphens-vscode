@@ -85,14 +85,15 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       return stream.markdown(`\`\`\`json\n${JSON.stringify(errors, null, 2)}\n\`\`\``)
     }
     case 'debug_rag': {
-      const rag = new RagService()
       logger.info(request.prompt)
-      const response = await rag.ask({
-        question: request.prompt,
-        nbResultats: 5
-      })
+      const response = await getCourseContent(request.prompt)
       logger.info(response)
       return stream.markdown('Fetched')
+    }
+    case 'debug_mentioned_files': {
+      const files = await getFilesByLink(request.prompt)
+      logger.info('Mentioned files : ', files)
+      return stream.markdown('Fetched files are in the console')
     }
   }
 
