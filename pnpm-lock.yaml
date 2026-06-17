@@ -7,14 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@graphens/schemas':
-        specifier: github:liglabs/graphens-schemas
-        version: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.0
         version: 2.31.0(@types/node@25.9.1)
+      '@graphens/schemas':
+        specifier: github:liglabs/graphens-schemas
+        version: https://codeload.github.com/liglabs/graphens-schemas/tar.gz/fcf54256e7107e2279670a84122a191ccded5af8
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
