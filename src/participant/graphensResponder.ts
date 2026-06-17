@@ -68,8 +68,10 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       if (history.length === 0) {
         return stream.markdown('No chat history found.')
       }
+      logger.info(context.history)
+      logger.info(history)
       for (const message of history) {
-        stream.markdown(`### ${message.role}\n\n${message.content}\n\n`)
+        stream.markdown(`### ${message.role}\n\n${message.content.join('')}\n\n`)
       }
       return
     }
