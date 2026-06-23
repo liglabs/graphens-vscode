@@ -1,5 +1,11 @@
 # graphens-vscode
 
+## 0.5.1
+
+### Patch Changes
+
+- 115a8b5: Add parseFilename function to extract filename from absolute path
+
 ## 0.5.0
 
 ### Minor Changes
