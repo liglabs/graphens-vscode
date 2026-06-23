@@ -1,7 +1,11 @@
 import { Subject, filter, distinctUntilChanged, switchMap, timer, map, tap } from 'rxjs'
-import { parseFilename } from 'ufo';
 import logger from '../logger';
+import { sep } from 'path';
 import * as vscode from 'vscode'
+
+function parseFilename(abs: string): string {
+  return abs.split(sep).at(-1) || 'undefined'
+}
 
 function getFirstLine(event: vscode.TextDocumentChangeEvent): number | undefined {
   return event.contentChanges[0]?.range.start.line;
