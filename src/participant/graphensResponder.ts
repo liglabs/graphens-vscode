@@ -14,6 +14,8 @@ import { RagService } from '../utils/rag'
 import logger from '../logger'
 import { getCourseContent } from './context/getCourseContent'
 import { getFilesByLink } from './context/getFilesByLink'
+import { getGraphensConfig } from './context/getGraphensConfig'
+import { getGraphensSources } from './context/getGraphensSources'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -96,6 +98,15 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       const files = await getFilesByLink(request.prompt)
       logger.info('Mentioned files : ', files)
       return stream.markdown('Fetched files are in the console')
+    }
+    case "debug_graphens_config": {
+      const config = await getGraphensConfig()
+      logger.info(config)
+      return stream.markdown('Config is in logs')
+    }
+    case "debug_graphens_sources": {
+      logger.info('Sources: ', await getGraphensSources())
+      return stream.markdown("Sources are in logs")
     }
   }
 

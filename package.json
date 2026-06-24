@@ -65,7 +65,9 @@
           },
           {
             "name": "debug_mentioned_files"
-          }
+          },
+          { "name": "debug_graphens_config" },
+          { "name": "debug_graphens_sources" }
         ]
       }
     ],
