@@ -14,6 +14,9 @@ import { RagService } from '../utils/rag'
 import logger from '../logger'
 import { getCourseContent } from './context/getCourseContent'
 import { getFilesByLink } from './context/getFilesByLink'
+import { getGraphensConfig } from './context/getGraphensConfig'
+import { getGraphensSources } from './context/getGraphensSources'
+import ReadGraphensConfigError from '../errors/ReadGraphensConfigError'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -97,6 +100,15 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       logger.info('Mentioned files : ', files)
       return stream.markdown('Fetched files are in the console')
     }
+    case "debug_graphens_config": {
+      const config = await getGraphensConfig()
+      logger.info(config)
+      return stream.markdown('Config is in logs')
+    }
+    case "debug_graphens_sources": {
+      logger.info('Sources: ', await getGraphensSources())
+      return stream.markdown("Sources are in logs")
+    }
   }
 
   const history = getHistory(context)
@@ -112,6 +124,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   const [
     readme, 
     graphensFiles, 
+    graphensSources,
     openFiles, 
     highlightedCode, 
     languageServerErrors, 
@@ -121,6 +134,14 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   ] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
+    (async () => {
+      try {
+        return await getGraphensSources()
+      } catch {
+        stream.progress('Erreur en lisant .graphens/config.yaml')
+        return []
+      }
+    })(),
     getOpenFiles(),
     getHighlightedCode(),
     getLanguageServerErrors(),
@@ -140,6 +161,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       : 'Aucun fichier README.md trouvé dans l\'espace de travail.',
     'Voici la liste des fichiers .graphens markdown trouvés dans l\'espace de travail :\n\n',
     ...graphensFiles.map(file => `---\ntitle: ${file.name}\n---\n${file.content}`),
+    ...graphensSources.map(file => `---\ntitle: ${file.url}\n---\n${file.content}`),
     'Voici le contenu de tous les fichiers ouverts dans l\'éditeur :\n\n',
     ...openFiles.map(file => `### ${file.path}\n\n${file.content}`),
     'Voici le contenu du cours pertinent: \n\n',

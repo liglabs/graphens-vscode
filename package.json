@@ -65,7 +65,9 @@
           },
           {
             "name": "debug_mentioned_files"
-          }
+          },
+          { "name": "debug_graphens_config" },
+          { "name": "debug_graphens_sources" }
         ]
       }
     ],
@@ -125,12 +127,14 @@
     "typescript": "^6.0.3",
     "ufo": "^1.6.4",
     "vite": "^8.0.13",
+    "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
   "bundledDependencies": [
     "consola",
     "ufo",
     "rxjs",
+    "yaml",
     "zod",
     "ofetch",
     "@graphens/schemas"
