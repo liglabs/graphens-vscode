@@ -14,6 +14,7 @@ export async function getGraphensSources() {
   const config = await getGraphensConfig()
   if (!config?.sources) return []
   const promises = config.sources.map(async (src) => {
+    // TODO: Verify if it is a text file
     return {
       url: src,
       content: await ofetch(src)
