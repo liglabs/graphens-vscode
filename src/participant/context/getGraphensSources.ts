@@ -6,6 +6,10 @@ export interface GraphensSource {
   content: string
 }
 
+/**
+ * Downloads files listed in sources in .graphens/config.yaml
+ * @returns List of successfully downloaded files
+ */
 export async function getGraphensSources() {
   const config = await getGraphensConfig()
   if (!config?.sources) return []
