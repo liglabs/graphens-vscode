@@ -16,6 +16,7 @@ import { getCourseContent } from './context/getCourseContent'
 import { getFilesByLink } from './context/getFilesByLink'
 import { getGraphensConfig } from './context/getGraphensConfig'
 import { getGraphensSources } from './context/getGraphensSources'
+import ReadGraphensConfigError from '../errors/ReadGraphensConfigError'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -133,7 +134,14 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
   ] = await Promise.all([
     getReadme(),
     getGraphensFiles(),
-    getGraphensSources(),
+    (async () => {
+      try {
+        return getGraphensSources()
+      } catch {
+        stream.progress('Erreur en lisant .graphens/config.yaml')
+        return []
+      }
+    })(),
     getOpenFiles(),
     getHighlightedCode(),
     getLanguageServerErrors(),
