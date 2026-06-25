@@ -1,5 +1,15 @@
 # graphens-vscode
 
+## 0.6.0
+
+### Minor Changes
+
+- babdd60: Define graphens config with remote sources
+
+### Patch Changes
+
+- babdd60: Install yaml parser
+
 ## 0.5.1
 
 ### Patch Changes
