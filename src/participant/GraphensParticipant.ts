@@ -16,6 +16,7 @@ import { processDebugCommands } from '../utils/processDebugCommands'
 import { getSessionKey } from '../utils/getSessionKey'
 import { SessionCache } from '../utils/SessionCache'
 import { getReadmeContextMessage } from './context/messages/readme'
+import { getGraphensContextMessage } from './context/messages/graphens'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -54,8 +55,7 @@ export class GraphensParticipant {
 
     const [
       readmeContext,
-      graphensFiles,
-      graphensSources,
+      graphensContext,
       openFiles,
       highlightedCode,
       languageServerErrors,
@@ -64,15 +64,7 @@ export class GraphensParticipant {
       mentionedFiles,
     ] = await Promise.all([
       getReadmeContextMessage(),
-      getGraphensFiles(),
-      (async () => {
-        try {
-          return await getGraphensSources()
-        } catch {
-          stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')
-          return []
-        }
-      })(),
+      getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')),
       getOpenFiles(),
       getHighlightedCode(),
       getLanguageServerErrors(),
@@ -86,13 +78,6 @@ export class GraphensParticipant {
     ])
 
     const prompt = [
-      "Voici la liste des fichiers .graphens markdown trouvés dans l'espace de travail :\n\n",
-      ...graphensFiles.map(
-        (file) => `---\ntitle: ${file.name}\n---\n${file.content}`,
-      ),
-      ...graphensSources.map(
-        (file) => `---\ntitle: ${file.url}\n---\n${file.content}`,
-      ),
       "Voici le contenu de tous les fichiers ouverts dans l'éditeur :\n\n",
       ...openFiles.map((file) => `### ${file.path}\n\n${file.content}`),
       'Voici le contenu du cours pertinent: \n\n',
@@ -116,7 +101,8 @@ export class GraphensParticipant {
 
     const messages = [
       vscode.LanguageModelChatMessage.User(BASE_PROMPT),
-      readmeContext
+      readmeContext,
+      graphensContext
     ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))

@@ -19,13 +19,13 @@ export class SessionCache {
     );
   }
 
-  public async get<T>(key: string, schema: z.Schema<T>, defaultValue: T): Promise<T> {
+  public async get<T>(key: string, schema: z.Schema<T>): Promise<T | null> {
     try {
       const raw = await vscode.workspace.fs.readFile(this.getUri(key));
       const dataRaw = JSON.parse(Buffer.from(raw).toString('utf8'));
       return schema.parse(dataRaw)
     } catch {
-      return defaultValue
+      return null
     }
   }
 
