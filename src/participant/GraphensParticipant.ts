@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
-import { getReadme } from './context/utils/getReadme.js'
 import { getGraphensFiles } from './context/utils/getGraphensFiles.js'
 import { runCompiler } from './context/utils/runCompiler'
 import { getOpenFiles } from './context/utils/getOpenFiles'
@@ -16,6 +15,7 @@ import { getGraphensSources } from './context/utils/getGraphensSources'
 import { processDebugCommands } from '../utils/processDebugCommands'
 import { getSessionKey } from '../utils/getSessionKey'
 import { SessionCache } from '../utils/SessionCache'
+import { getReadmeContextMessage } from './context/messages/readme'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -53,7 +53,7 @@ export class GraphensParticipant {
     stream.progress('Chargement du contexte…')
 
     const [
-      readme,
+      readmeContext,
       graphensFiles,
       graphensSources,
       openFiles,
@@ -63,7 +63,7 @@ export class GraphensParticipant {
       courseContent,
       mentionedFiles,
     ] = await Promise.all([
-      getReadme(),
+      getReadmeContextMessage(),
       getGraphensFiles(),
       (async () => {
         try {
@@ -86,10 +86,6 @@ export class GraphensParticipant {
     ])
 
     const prompt = [
-      BASE_PROMPT,
-      readme
-        ? `Voici le contenu du README.md trouvé dans l'espace de travail :\n\n${readme}`
-        : "Aucun fichier README.md trouvé dans l'espace de travail.",
       "Voici la liste des fichiers .graphens markdown trouvés dans l'espace de travail :\n\n",
       ...graphensFiles.map(
         (file) => `---\ntitle: ${file.name}\n---\n${file.content}`,
@@ -118,7 +114,10 @@ export class GraphensParticipant {
 
     stream.progress('Génération de la réponse…')
 
-    const messages = [vscode.LanguageModelChatMessage.User(prompt)]
+    const messages = [
+      vscode.LanguageModelChatMessage.User(BASE_PROMPT),
+      readmeContext
+    ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
 
