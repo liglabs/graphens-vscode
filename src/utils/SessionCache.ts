@@ -1,11 +1,18 @@
 import * as vscode from 'vscode'
 import z from 'zod';
 
-export class WorkspaceCache {
-  constructor (private ext: vscode.ExtensionContext){}
+export class SessionCache {
+  private initPromise: Promise<void>
+
+  constructor (
+    private ext: vscode.ExtensionContext,
+    private sessionId: string
+  ){
+    this.initPromise = this.init()
+  }
 
   public async set<T>(key: string, value: T) {
-    await vscode.workspace.fs.createDirectory(this.ext.storageUri!)
+    await this.initPromise
     await vscode.workspace.fs.writeFile(
       this.getUri(key),
       Buffer.from(JSON.stringify(value), 'utf8')
@@ -25,6 +32,12 @@ export class WorkspaceCache {
   private getUri(key: string): vscode.Uri {
     // Sanitize key to be a valid filename
     const filename = key.replace(/[^a-z0-9_-]/gi, '_') + '.json';
-    return vscode.Uri.joinPath(this.ext.storageUri!, filename);
+    return vscode.Uri.joinPath(this.ext.storageUri!, this.sessionId, filename);
+  }
+
+  private async init () {
+    await vscode.workspace.fs.createDirectory(this.ext.storageUri!)
+    const folderUri = vscode.Uri.joinPath(this.ext.storageUri!, this.sessionId)
+    await vscode.workspace.fs.createDirectory(folderUri)
   }
 }
