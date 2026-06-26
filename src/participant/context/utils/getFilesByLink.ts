@@ -2,7 +2,7 @@
 
 import path from "path";
 import * as vscode from "vscode";
-import logger from "../../logger";
+import logger from "../../../logger";
 
 type LinkResult = {
 	original: string;

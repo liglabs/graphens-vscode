@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { reportErrorExistsTool, reportErrorExistsSchema } from '../../tools/reportErrorExists'
-import { parseToolCallFromStream } from '../../utils/parseToolCall'
+import { reportErrorExistsTool, reportErrorExistsSchema } from '../../../tools/reportErrorExists'
+import { parseToolCallFromStream } from '../../../utils/parseToolCall'
 
 export async function errorExists(
   model: vscode.LanguageModelChat,

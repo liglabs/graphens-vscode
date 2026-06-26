@@ -2,8 +2,8 @@ import * as vscode from 'vscode'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { getReadme } from './getReadme'
-import { reportCompileCommandTool, reportCompileCommandSchema } from '../../tools/reportCompileCommand'
-import { parseToolCallFromStream } from '../../utils/parseToolCall'
+import { reportCompileCommandTool, reportCompileCommandSchema } from '../../../tools/reportCompileCommand'
+import { parseToolCallFromStream } from '../../../utils/parseToolCall'
 
 const execAsync = promisify(exec)
 

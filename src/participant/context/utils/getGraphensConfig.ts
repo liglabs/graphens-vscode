@@ -1,8 +1,8 @@
 import { workspace } from 'vscode'
-import { GraphensConfig, GraphensConfigSchema } from '../../models/GraphensConfig'
+import { GraphensConfig, GraphensConfigSchema } from '../../../models/GraphensConfig'
 import * as yaml from 'yaml'
-import logger from '../../logger'
-import ReadGraphensConfigError from '../../errors/ReadGraphensConfigError'
+import logger from '../../../logger'
+import ReadGraphensConfigError from '../../../errors/ReadGraphensConfigError'
 
 export async function getGraphensConfig(): Promise<GraphensConfig | null> {
   const docs = await workspace.findFiles('.graphens/config.y{a,}ml', '**/node_modules/**', 1)
