@@ -10,13 +10,10 @@ import { getHistory } from './context/getHistory'
 import { isCheating } from './guards/cheating'
 import { errorExists } from './context/errorExists'
 import { getLanguageServerErrors } from './context/getLanguageServerErrors'
-import { RagService } from '../utils/rag'
-import logger from '../logger'
 import { getCourseContent } from './context/getCourseContent'
 import { getFilesByLink } from './context/getFilesByLink'
-import { getGraphensConfig } from './context/getGraphensConfig'
 import { getGraphensSources } from './context/getGraphensSources'
-import ReadGraphensConfigError from '../errors/ReadGraphensConfigError'
+import { processDebugCommands } from '../utils/processDebugCommands'
 
 export const graphensResponder: vscode.ChatRequestHandler = async (
   request: vscode.ChatRequest,
@@ -26,89 +23,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
 ): Promise<void> => {
   console.log('Graphens responding to : ', request.prompt)
 
-  switch (request.command) {
-    case 'debug_readme':{
-      const readme = await getReadme()
-      if (readme === '') {
-        return stream.markdown('No README.md file found in the workspace.')
-      }
-      return stream.markdown(readme)
-    }
-    case 'debug_open_files': {
-      const openFiles = await getOpenFiles()
-      if (openFiles.length === 0) {
-        return stream.markdown('No open files found.')
-      }
-      for (const file of openFiles) {
-        stream.markdown(`### ${file.path}\n\n${file.content}\n\n`)
-      }
-      return
-    }
-    case 'debug_graphens_files': {
-      const files = await getGraphensFiles()
-      if (files.length === 0) {
-        return stream.markdown('No .graphens markdown files found in the workspace.')
-      }
-      for (const file of files) {
-        stream.markdown(`### ${file.name}\n\n${file.content}\n\n`)
-      }
-      return
-    }
-    case 'debug_highlighted_code': {
-      const highlightedCode = await getHighlightedCode()
-      if (!highlightedCode) {
-        return stream.markdown('No highlighted code found.')
-      }
-      stream.markdown(`Voici le code mis en évidence dans l\'éditeur : \n\n`)
-      return stream.markdown(`\`\`\`json\n${JSON.stringify(highlightedCode, null, 2)}\n\`\`\``)
-    }
-    case 'debug_cheating_guard': {
-      const isCheater = await isCheating(request.prompt, request.model, token)
-      return stream.markdown(`Cheating guard result: ${isCheater ? 'Cheater detected' : 'No cheating detected'}`)
-    }
-    case 'debug_history': {
-      const history = getHistory(context)
-      if (history.length === 0) {
-        return stream.markdown('No chat history found.')
-      }
-      logger.info(context.history)
-      logger.info(history)
-      for (const message of history) {
-        stream.markdown(`### ${message.role}\n\n${message.content.join('')}\n\n`)
-      }
-      return
-    }
-    case 'debug_compiler': {
-      const compilerOutput = await runCompiler(request.model, getHistory(context), token)
-      return stream.markdown(`**Compile command:** \`${compilerOutput.command}\`\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``)
-    }
-    case 'debug_language_server_errors': {
-      const errors = await getLanguageServerErrors()
-      if (errors.length === 0) {
-        return stream.markdown('No language server diagnostics found for the active file.')
-      }
-      return stream.markdown(`\`\`\`json\n${JSON.stringify(errors, null, 2)}\n\`\`\``)
-    }
-    case 'debug_rag': {
-      logger.info(request.prompt)
-      const response = await getCourseContent(request.prompt)
-      logger.info(response)
-      return stream.markdown('Fetched')
-    }
-    case 'debug_mentioned_files': {
-      const files = await getFilesByLink(request.prompt)
-      logger.info('Mentioned files : ', files)
-      return stream.markdown('Fetched files are in the console')
-    }
-    case "debug_graphens_config": {
-      const config = await getGraphensConfig()
-      logger.info(config)
-      return stream.markdown('Config is in logs')
-    }
-    case "debug_graphens_sources": {
-      logger.info('Sources: ', await getGraphensSources())
-      return stream.markdown("Sources are in logs")
-    }
+  if (await processDebugCommands(request, context, stream, token)) {
+    return
   }
 
   const history = getHistory(context)
