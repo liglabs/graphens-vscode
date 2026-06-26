@@ -12,7 +12,7 @@ export class WorkspaceCache {
     );
   }
 
-  public async get<T>(key: string, defaultValue: T, schema: z.Schema<T>): Promise<T> {
+  public async get<T>(key: string, schema: z.Schema<T>, defaultValue: T): Promise<T> {
     try {
       const raw = await vscode.workspace.fs.readFile(this.getUri(key));
       const dataRaw = JSON.parse(Buffer.from(raw).toString('utf8'));
