@@ -138,7 +138,7 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       try {
         return await getGraphensSources()
       } catch {
-        stream.progress('Erreur en lisant .graphens/config.yaml')
+        stream.markdown('> Erreur en lisant .graphens/config.yaml')
         return []
       }
     })(),
