@@ -37,6 +37,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
     return
   }
 
+  stream.progress('Chargement du contexte…')
+
   const [
     readme, 
     graphensFiles, 
@@ -94,6 +96,8 @@ export const graphensResponder: vscode.ChatRequestHandler = async (
       ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\n **Success:** ${compilerOutput.success}\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``
       : 'Aucune erreur de compilation détectée ou aucune commande de compilation suggérée.'
   ].join('\n\n ============ \n\n')
+
+  stream.progress('Génération de la réponse…')
 
   const messages = [vscode.LanguageModelChatMessage.User(prompt)];
   messages.push(...history);
