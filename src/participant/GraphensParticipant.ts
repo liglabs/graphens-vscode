@@ -2,8 +2,6 @@ import * as vscode from 'vscode'
 import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
 import { runCompiler } from './context/utils/runCompiler'
-import { getOpenFiles } from './context/utils/getOpenFiles'
-import { getHighlightedCode } from './context/utils/getHighlightedCode'
 import { getHistory } from './context/utils/getHistory'
 import { isCheating } from './guards/cheating'
 import { errorExists } from './context/utils/errorExists'
@@ -15,6 +13,7 @@ import { getSessionKey } from '../utils/getSessionKey'
 import { SessionCache } from '../utils/SessionCache'
 import { getReadmeContextMessage } from './context/messages/readme'
 import { getGraphensContextMessage } from './context/messages/graphens'
+import { getWorkspaceContextMessage } from './context/messages/workspace'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -54,8 +53,7 @@ export class GraphensParticipant {
     const [
       readmeContext,
       graphensContext,
-      openFiles,
-      highlightedCode,
+      workspaceContext,
       languageServerErrors,
       compilerOutput,
       courseContent,
@@ -63,8 +61,7 @@ export class GraphensParticipant {
     ] = await Promise.all([
       getReadmeContextMessage(),
       getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')),
-      getOpenFiles(),
-      getHighlightedCode(),
+      getWorkspaceContextMessage(),
       getLanguageServerErrors(),
       (async () => {
         if (!(await errorExists(request.model, request.prompt, token)))
@@ -76,17 +73,12 @@ export class GraphensParticipant {
     ])
 
     const prompt = [
-      "Voici le contenu de tous les fichiers ouverts dans l'éditeur :\n\n",
-      ...openFiles.map((file) => `### ${file.path}\n\n${file.content}`),
       'Voici le contenu du cours pertinent: \n\n',
       ...courseContent.map((chunk) => `## ${chunk.titre} \n\n ${chunk.texte}`),
       "Voici les fichiers mentionnés par l'étudiant",
       ...mentionedFiles.map(
         (file) => `### ${file.original}\n\n${file.content}`,
       ),
-      highlightedCode
-        ? `Voici le code mis en évidence dans l\'éditeur (${highlightedCode.filename}[${highlightedCode.linesRange[0]}-${highlightedCode.linesRange[1]}]) :\n\n${highlightedCode.content}`
-        : 'Aucun code mis en évidence trouvé.',
       languageServerErrors.length > 0
         ? `Voici les erreurs du serveur de langage pour le fichier actif :\n\n\`\`\`json\n${JSON.stringify(languageServerErrors, null, 2)}\n\`\`\``
         : 'Aucune erreur de serveur de langage détectée dans le fichier actif.',
@@ -100,7 +92,8 @@ export class GraphensParticipant {
     const messages = [
       vscode.LanguageModelChatMessage.User(BASE_PROMPT),
       readmeContext,
-      graphensContext
+      graphensContext,
+      workspaceContext
     ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
