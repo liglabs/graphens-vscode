@@ -14,6 +14,8 @@ import { getCourseContent } from './context/utils/getCourseContent'
 import { getFilesByLink } from './context/utils/getFilesByLink'
 import { getGraphensSources } from './context/utils/getGraphensSources'
 import { processDebugCommands } from '../utils/processDebugCommands'
+import { getSessionKey } from '../utils/getSessionKey'
+import { SessionCache } from '../utils/SessionCache'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -30,6 +32,8 @@ export class GraphensParticipant {
       return
     }
 
+    const sessionId = getSessionKey(request, context)
+    const cache = new SessionCache(this.extentionContext, sessionId)
     const history = getHistory(context)
 
     const cheatingResponseSent = history.some(
