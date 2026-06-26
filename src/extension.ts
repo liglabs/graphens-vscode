@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { ChatViewProvider } from './ChatViewProvider'
-import { graphensResponder } from './participant/graphensResponder'
+import { GraphensParticipant } from './participant/GraphensParticipant'
 import { startBlockedTracker } from './proactiveNotifications/blockedTracker'
 import logger from './logger'
 import configStatic from './config.static'
@@ -8,7 +8,8 @@ import configStatic from './config.static'
 export function activate(context: vscode.ExtensionContext) {
   logger.info('Activating Graphens')
   const provider = new ChatViewProvider(context)
-  vscode.chat.createChatParticipant(configStatic.participantId, graphensResponder)
+  const participant = new GraphensParticipant(context)
+  vscode.chat.createChatParticipant(configStatic.participantId, participant.responde)
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
