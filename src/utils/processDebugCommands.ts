@@ -4,7 +4,7 @@ import { getReadme } from '../participant/context/utils/getReadme'
 import { getOpenFiles } from '../participant/context/utils/getOpenFiles'
 import { getGraphensSources } from '../participant/context/utils/getGraphensSources'
 import { getGraphensConfig } from '../participant/context/utils/getGraphensConfig'
-import { getFilesByLink } from '../participant/context/utils/getFilesByLink'
+import { extractLinks, getFilesByLink } from '../participant/context/utils/getFilesByLink'
 import { getCourseContent } from '../participant/context/utils/getCourseContent'
 import { getLanguageServerErrors } from '../participant/context/utils/getLanguageServerErrors'
 import { runCompiler } from '../participant/context/utils/runCompiler'
@@ -115,7 +115,8 @@ export async function processDebugCommands(
       break
     }
     case 'debug_mentioned_files': {
-      const files = await getFilesByLink(request.prompt)
+      const links = extractLinks(request.prompt)
+      const files = await getFilesByLink(links.local, links.web)
       logger.info('Mentioned files : ', files)
       stream.markdown('Fetched files are in the console')
       break
