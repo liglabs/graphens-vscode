@@ -12,6 +12,7 @@ import { getHistory } from '../participant/context/utils/getHistory'
 import { isCheating } from '../participant/guards/cheating'
 import { getHighlightedCode } from '../participant/context/utils/getHighlightedCode'
 import { getGraphensFiles } from '../participant/context/utils/getGraphensFiles'
+import { getSessionKey } from './getSessionKey'
 
 export async function processDebugCommands(
   request: vscode.ChatRequest,
@@ -130,6 +131,11 @@ export async function processDebugCommands(
     case 'debug_graphens_sources': {
       logger.info('Sources: ', await getGraphensSources())
       stream.markdown('Sources are in logs')
+      break
+    }
+    case 'debug_session_id': {
+      const id = getSessionKey(request, context)
+      stream.markdown(`Session ID is \`${id}\``)
       break
     }
     default: {

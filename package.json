@@ -28,40 +28,31 @@
         "description": "Assistant pour des étudiants en informatique.",
         "commands": [
           {
-            "name": "debug_readme",
-            "description": "Check how getReadme() works"
+            "name": "debug_readme"
           },
           {
-            "name": "debug_graphens_files",
-            "description": "Check how getGraphensFiles() works"
+            "name": "debug_graphens_files"
           },
           {
-            "name": "debug_open_files",
-            "description": "Check how getOpenFiles() works"
+            "name": "debug_open_files"
           },
           {
-            "name": "debug_highlighted_code",
-            "description": "Check how getHighlightedCode() works"
+            "name": "debug_highlighted_code"
           },
           {
-            "name": "debug_cheating_guard",
-            "description": "Check how isCheating() works"
+            "name": "debug_cheating_guard"
           },
           {
-            "name": "debug_history",
-            "description": "Check how getHistory() works"
+            "name": "debug_history"
           },
           {
-            "name": "debug_compiler",
-            "description": "Check how runCompiler() works"
+            "name": "debug_compiler"
           },
           {
-            "name": "debug_language_server_errors",
-            "description": "Check language server diagnostics for the active file"
+            "name": "debug_language_server_errors"
           },
           {
-            "name": "debug_rag",
-            "description": ""
+            "name": "debug_rag"
           },
           {
             "name": "debug_mentioned_files"
@@ -71,6 +62,9 @@
           },
           {
             "name": "debug_graphens_sources"
+          },
+          {
+            "name": "debug_session_id"
           }
         ]
       }
