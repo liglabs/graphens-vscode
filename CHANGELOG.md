@@ -1,5 +1,12 @@
 # graphens-vscode
 
+## 0.6.1
+
+### Patch Changes
+
+- b0c2d21: Send context as multiple messages
+- b0c2d21: Cache remote calls
+
 ## 0.6.0
 
 ### Minor Changes
