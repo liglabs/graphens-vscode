@@ -79,7 +79,8 @@ export class GraphensParticipant {
 
     const chatResponse = await request.model.sendRequest(messages, {
       toolMode: vscode.LanguageModelChatToolMode.Auto,
-      tools: await getMcpTools(() => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les MCP'))
+      tools: await getMcpTools(() => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les MCP')),
+      justification: 'Generate a human-readable answer'
     }, token)
 
     for await (const fragment of chatResponse.text) {

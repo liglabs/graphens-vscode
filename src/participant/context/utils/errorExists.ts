@@ -30,7 +30,11 @@ export async function errorExists(
 
   const response = await model.sendRequest(
     messages,
-    { tools: [reportErrorExistsTool], toolMode: vscode.LanguageModelChatToolMode.Required },
+    { 
+      tools: [reportErrorExistsTool], 
+      toolMode: vscode.LanguageModelChatToolMode.Required,
+      justification: 'Decide whether we need to run compiler based on the context.'
+    },
     token
   )
 
