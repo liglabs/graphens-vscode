@@ -1,4 +1,4 @@
-name: Test
+name: Release
 
 
 on:
@@ -9,8 +9,8 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  test:
-    name: Test packaging
+  release:
+    name: Release
     permissions:
       id-token: write
       contents: write

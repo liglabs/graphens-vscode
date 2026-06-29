@@ -2,18 +2,21 @@ import * as vscode from 'vscode'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { getReadme } from './getReadme'
-import { reportCompileCommandTool, reportCompileCommandSchema } from '../../tools/reportCompileCommand'
-import { parseToolCallFromStream } from '../../utils/parseToolCall'
+import { reportCompileCommandTool, reportCompileCommandSchema } from '../../../tools/reportCompileCommand'
+import { parseToolCallFromStream } from '../../../utils/parseToolCall'
+import z from 'zod'
 
 const execAsync = promisify(exec)
 
 const outputChannel = vscode.window.createOutputChannel('Graphens Compiler')
 
-export interface CompilerResult {
-  command: string
-  output: string
-  success: boolean
-}
+export const CompilerResultSchema = z.object({
+  command: z.string(),
+  output: z.string(),
+  success: z.boolean()
+})
+
+export type CompilerResult = z.output<typeof CompilerResultSchema>
 
 interface ProjectFileInfo {
   platform: string

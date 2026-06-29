@@ -1,5 +1,5 @@
-import logger from "../../logger"
-import { RagService } from "../../utils/rag"
+import logger from "../../../logger"
+import { RagService } from "../../../utils/rag"
 
 const rag = new RagService()
 
