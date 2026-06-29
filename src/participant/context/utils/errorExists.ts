@@ -1,11 +1,13 @@
 import * as vscode from 'vscode'
 import { reportErrorExistsTool, reportErrorExistsSchema } from '../../../tools/reportErrorExists'
 import { parseToolCallFromStream } from '../../../utils/parseToolCall'
+import { CompilerResult } from './runCompiler'
 
 export async function errorExists(
   model: vscode.LanguageModelChat,
   userPrompt: string,
-  token: vscode.CancellationToken
+  token: vscode.CancellationToken,
+  latestCompilerOutput?: CompilerResult
 ): Promise<boolean> {
   const messages = [
     vscode.LanguageModelChatMessage.User(
@@ -14,6 +16,17 @@ export async function errorExists(
       `Use the report_error_exists tool to report your finding.`
     )
   ]
+
+  if (latestCompilerOutput) {
+    messages.push(vscode.LanguageModelChatMessage.User(
+      'There is latest compiler output started via (it can be old and irrelevant, but sometimes you can save time on not running compilation):\n\n' +
+      `**Command**: \`${latestCompilerOutput.command}\`\n\n` +
+      `**Success**: \`${latestCompilerOutput.success}\`\n\n` +
+      '```shell\n' +
+      latestCompilerOutput.output + 
+      '\n```'
+    ))
+  }
 
   const response = await model.sendRequest(
     messages,

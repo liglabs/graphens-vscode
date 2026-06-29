@@ -14,6 +14,8 @@ import { SessionCache } from '../utils/SessionCache'
 import { getReadmeContextMessage } from './context/messages/readme'
 import { getGraphensContextMessage } from './context/messages/graphens'
 import { getWorkspaceContextMessage } from './context/messages/workspace'
+import { ParticipantContext } from '../models/ParticipantContext'
+import { getErrorsContextMessages } from './context/messages/errors'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -25,6 +27,7 @@ export class GraphensParticipant {
     token: vscode.CancellationToken,
   ): Promise<void> => {
     console.log('Graphens responding to : ', request.prompt)
+    const ctx: ParticipantContext = {request, context, stream, token}
 
     if (await processDebugCommands(request, context, stream, token)) {
       return
@@ -54,20 +57,14 @@ export class GraphensParticipant {
       readmeContext,
       graphensContext,
       workspaceContext,
-      languageServerErrors,
-      compilerOutput,
+      errorsContext,
       courseContent,
       mentionedFiles,
     ] = await Promise.all([
       getReadmeContextMessage(),
       getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')),
       getWorkspaceContextMessage(),
-      getLanguageServerErrors(),
-      (async () => {
-        if (!(await errorExists(request.model, request.prompt, token)))
-          return null
-        return runCompiler(request.model, getHistory(context), token)
-      })(),
+      getErrorsContextMessages(ctx, cache),
       getCourseContent(request.prompt),
       getFilesByLink(request.prompt),
     ])
@@ -78,13 +75,7 @@ export class GraphensParticipant {
       "Voici les fichiers mentionnés par l'étudiant",
       ...mentionedFiles.map(
         (file) => `### ${file.original}\n\n${file.content}`,
-      ),
-      languageServerErrors.length > 0
-        ? `Voici les erreurs du serveur de langage pour le fichier actif :\n\n\`\`\`json\n${JSON.stringify(languageServerErrors, null, 2)}\n\`\`\``
-        : 'Aucune erreur de serveur de langage détectée dans le fichier actif.',
-      compilerOutput
-        ? `Voici le résultat de la tentative de compilation du projet :\n\n**Compile command:** \`${compilerOutput.command}\`\n\n **Success:** ${compilerOutput.success}\n\nCompiler output: \n\`\`\`shell\n${compilerOutput.output}\n\`\`\``
-        : 'Aucune erreur de compilation détectée ou aucune commande de compilation suggérée.',
+      )
     ].join('\n\n ============ \n\n')
 
     stream.progress('Génération de la réponse…')
@@ -93,7 +84,8 @@ export class GraphensParticipant {
       vscode.LanguageModelChatMessage.User(BASE_PROMPT),
       readmeContext,
       graphensContext,
-      workspaceContext
+      workspaceContext,
+      ...errorsContext
     ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
