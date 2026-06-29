@@ -103,6 +103,7 @@
   },
   "scripts": {
     "vscode:prepublish": "turbo run build",
+    "test": "tsc -p tsconfig.json && node ./dist/test/runTest.js",
     "watch:ui": "pnpm --filter graphens-vscode-ui watch",
     "watch:ext": "vite build --config vite.extension.config.ts --watch",
     "watch": "concurrently \"npm:watch:ext\" \"npm:watch:ui\"",

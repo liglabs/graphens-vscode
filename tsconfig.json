@@ -3,6 +3,7 @@
     "module": "Node16",
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "dist",
@@ -10,7 +11,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "types": ["node", "vite/client"]
+    "types": ["node", "mocha", "vite/client"]
   },
   "include": ["src"],
   "exclude": ["node_modules", ".vscode-test"]
