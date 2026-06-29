@@ -3,7 +3,6 @@ import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
 import { getHistory } from './context/utils/getHistory'
 import { isCheating } from './guards/cheating'
-import { getFilesByLink } from './context/utils/getFilesByLink'
 import { processDebugCommands } from '../utils/processDebugCommands'
 import { getSessionKey } from '../utils/getSessionKey'
 import { SessionCache } from '../utils/SessionCache'
@@ -12,6 +11,7 @@ import { getGraphensContextMessage } from './context/messages/graphens'
 import { getWorkspaceContextMessage } from './context/messages/workspace'
 import { ParticipantContext } from '../models/ParticipantContext'
 import { getErrorsContextMessages } from './context/messages/errors'
+import { getFilesContextMessage } from './context/messages/files'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -54,22 +54,14 @@ export class GraphensParticipant {
       graphensContext,
       workspaceContext,
       errorsContext,
-      mentionedFiles,
+      filesContext,
     ] = await Promise.all([
       getReadmeContextMessage(),
       getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')),
       getWorkspaceContextMessage(),
       getErrorsContextMessages(ctx, cache),
-      getFilesByLink(request.prompt),
+      getFilesContextMessage(request.prompt, cache),
     ])
-
-    const prompt = [
-      // TODO: Add MCP support
-      "Voici les fichiers mentionnés par l'étudiant",
-      ...mentionedFiles.map(
-        (file) => `### ${file.original}\n\n${file.content}`,
-      )
-    ].join('\n\n ============ \n\n')
 
     stream.progress('Génération de la réponse…')
 
@@ -78,11 +70,13 @@ export class GraphensParticipant {
       readmeContext,
       graphensContext,
       workspaceContext,
-      ...errorsContext
+      ...errorsContext,
+      ...filesContext
     ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
 
+    // TODO: Add MCP support
     const chatResponse = await request.model.sendRequest(messages, {}, token)
 
     for await (const fragment of chatResponse.text) {

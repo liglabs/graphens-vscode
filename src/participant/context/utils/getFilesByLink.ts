@@ -3,14 +3,18 @@
 import path from "path";
 import * as vscode from "vscode";
 import logger from "../../../logger";
+import z from "zod";
 
-type LinkResult = {
-	original: string;
-	content: string;
-};
+export const LinkResultSchema = z.object({
+	original: z.string(),
+	content: z.string(),
+	type: z.enum(['web', 'local'])
+})
 
-export function extractLinks(prompt: string, workspaceRoot?: string): string[] {
-	if (!prompt) return [];
+export type LinkResult = z.output<typeof LinkResultSchema>
+
+export function extractLinks(prompt: string, workspaceRoot?: string): {web: string[], local: string[]} {
+	if (!prompt) return {web: [], local: []};
 
 	// determine workspace root: prefer provided, then first workspaceFolder, then cwd
 	const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -62,10 +66,10 @@ export function extractLinks(prompt: string, workspaceRoot?: string): string[] {
 		// otherwise ignore
 	}
 
-	return [
-		...projectFiles.map(f => f.resolvedPath),
-		...webFiles.map(f => f.url)
-	]
+	return {
+		local: projectFiles.map(f => f.resolvedPath),
+		web: webFiles.map(f => f.url)
+	}
 }
 
 /**
@@ -76,10 +80,8 @@ export function extractLinks(prompt: string, workspaceRoot?: string): string[] {
  *
  * Returns an array of LinkResult for each detected token that looks like a link/path.
  */
-export async function getFilesByLink(files: string[], workspaceRoot?: string): Promise<LinkResult[]> {
+export async function getFilesByLink(projectFiles: string[], webFiles: string[]): Promise<LinkResult[]> {
 	const results: LinkResult[] = []
-	const projectFiles = files.filter(f => !f.startsWith('http://') &&  !f.startsWith('https://'))
-	const webFiles = files.filter(f => f.startsWith('http://') ||  f.startsWith('https://'))
 	// Fetch project files (use VS Code FS). Do in parallel but limit to avoid overload if desired.
 	await Promise.all(
 		projectFiles.map(async (pf) => {
@@ -88,7 +90,7 @@ export async function getFilesByLink(files: string[], workspaceRoot?: string): P
 				const stat = await vscode.workspace.fs.stat(uri);
 				if ((stat.type & vscode.FileType.File) === vscode.FileType.File || stat.type === vscode.FileType.File) {
 					const bytes = await vscode.workspace.fs.readFile(uri);
-					results.push({ original: pf, content: Buffer.from(bytes).toString('utf8') });
+					results.push({ original: pf, content: Buffer.from(bytes).toString('utf8'), type: 'local' });
 				} else {
 					// Path exists but is not a file — do not save errors
 				}
@@ -105,7 +107,7 @@ export async function getFilesByLink(files: string[], workspaceRoot?: string): P
 				const res = await fetch(wf);
 				if (res.ok) {
 					const text = await res.text();
-					results.push({ original: wf, content: text });
+					results.push({ original: wf, content: text, type: 'web' });
 				} else {
 					// non-ok response — do not save errors
 				}
