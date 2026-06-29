@@ -12,6 +12,7 @@ import { getWorkspaceContextMessage } from './context/messages/workspace'
 import { ParticipantContext } from '../models/ParticipantContext'
 import { getErrorsContextMessages } from './context/messages/errors'
 import { getFilesContextMessage } from './context/messages/files'
+import { getMcpTools } from './context/utils/getMcpTools'
 
 export class GraphensParticipant {
   constructor(private extentionContext: vscode.ExtensionContext) {}
@@ -57,7 +58,7 @@ export class GraphensParticipant {
       filesContext,
     ] = await Promise.all([
       getReadmeContextMessage(),
-      getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml`')),
+      getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les fichiers du course')),
       getWorkspaceContextMessage(),
       getErrorsContextMessages(ctx, cache),
       getFilesContextMessage(request.prompt, cache),
@@ -76,8 +77,10 @@ export class GraphensParticipant {
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
 
-    // TODO: Add MCP support
-    const chatResponse = await request.model.sendRequest(messages, {}, token)
+    const chatResponse = await request.model.sendRequest(messages, {
+      toolMode: vscode.LanguageModelChatToolMode.Auto,
+      tools: await getMcpTools(() => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les MCP'))
+    }, token)
 
     for await (const fragment of chatResponse.text) {
       stream.markdown(fragment)
