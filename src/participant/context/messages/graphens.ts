@@ -30,6 +30,8 @@ export async function getGraphensContextMessage(cache: SessionCache, onConfigErr
     if (cached) {
       return cached
     }
-    return getGraphensSources(onConfigError)
+    const response = getGraphensSources(onConfigError)
+    await cache.set('graphens.remote', response)
+    return response
   }
 }
