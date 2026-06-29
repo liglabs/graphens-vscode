@@ -113,6 +113,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@graphens/schemas": "github:liglabs/graphens-schemas",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.1",
     "@types/vscode": "^1.96.0",
@@ -133,6 +134,7 @@
     "zod": "^4.4.3"
   },
   "bundledDependencies": [
+    "@modelcontextprotocol/sdk",
     "consola",
     "ufo",
     "rxjs",

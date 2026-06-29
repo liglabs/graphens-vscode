@@ -13,9 +13,13 @@ import { ParticipantContext } from '../models/ParticipantContext'
 import { getErrorsContextMessages } from './context/messages/errors'
 import { getFilesContextMessage } from './context/messages/files'
 import { getMcpTools } from './context/utils/getMcpTools'
+import { McpToolClient } from '../utils/mcp'
 
 export class GraphensParticipant {
-  constructor(private extentionContext: vscode.ExtensionContext) {}
+  constructor(
+    private extentionContext: vscode.ExtensionContext,
+    private mcpClients: McpToolClient[]
+  ) {}
 
   public responde: vscode.ChatRequestHandler = async (
     request: vscode.ChatRequest,
@@ -24,7 +28,7 @@ export class GraphensParticipant {
     token: vscode.CancellationToken,
   ): Promise<void> => {
     console.log('Graphens responding to : ', request.prompt)
-    const ctx: ParticipantContext = {request, context, stream, token}
+    const ctx: ParticipantContext = { request, context, stream, token }
 
     if (await processDebugCommands(request, context, stream, token)) {
       return
@@ -66,7 +70,7 @@ export class GraphensParticipant {
 
     stream.progress('Génération de la réponse…')
 
-    const messages = [
+    const messages: vscode.LanguageModelChatMessage[] = [
       vscode.LanguageModelChatMessage.User(BASE_PROMPT),
       readmeContext,
       graphensContext,
