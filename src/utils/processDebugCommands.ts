@@ -138,6 +138,13 @@ export async function processDebugCommands(
       stream.markdown(`Session ID is \`${id}\``)
       break
     }
+    case 'debug_mcp_tools':{
+      const tools = vscode.lm.tools
+      logger.info(tools)
+      stream.markdown("MCP Tools: ")
+      stream.markdown(tools.map(t => `**${t.name}** [${t.tags.join(', ')}]`).join('\n- '))
+      break
+    }
     default: {
       return false
     }
