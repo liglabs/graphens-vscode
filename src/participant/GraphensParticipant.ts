@@ -14,6 +14,7 @@ import { getErrorsContextMessages } from './context/messages/errors'
 import { getFilesContextMessage } from './context/messages/files'
 import { getMcpTools } from './context/utils/getMcpTools'
 import { McpToolClient } from '../utils/mcp'
+import { getMcpContextMessages } from './context/messages/mcp'
 
 export class GraphensParticipant {
   constructor(
@@ -60,12 +61,14 @@ export class GraphensParticipant {
       workspaceContext,
       errorsContext,
       filesContext,
+      mcpContext
     ] = await Promise.all([
       getReadmeContextMessage(),
       getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les fichiers du course')),
       getWorkspaceContextMessage(),
       getErrorsContextMessages(ctx, cache),
       getFilesContextMessage(request.prompt, cache),
+      getMcpContextMessages(ctx, this.mcpClients, [vscode.LanguageModelChatMessage.User(request.prompt)])
     ])
 
     stream.progress('Génération de la réponse…')
@@ -76,7 +79,8 @@ export class GraphensParticipant {
       graphensContext,
       workspaceContext,
       ...errorsContext,
-      ...filesContext
+      ...filesContext,
+      ...mcpContext
     ]
     messages.push(...history)
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
