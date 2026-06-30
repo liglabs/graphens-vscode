@@ -5,6 +5,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import logger from '../logger';
 
+const toolSep = '____'
+
 // --- Schema ---
 
 const StdioServerSchema = z.object({
@@ -83,7 +85,7 @@ export async function initMcpClients(
 
   for (const [name, config] of Object.entries(servers)) {
     try {
-      const client = new Client({ name: `graphens-${name}`, version: '1.0.0' });
+      const client = new Client({ name, version: '0' });
 
       if ('url' in config) {
         await client.connect(new SSEClientTransport(new URL(config.url)));
@@ -97,13 +99,13 @@ export async function initMcpClients(
 
       const { tools: mcpTools } = await client.listTools();
       const chatTools: vscode.LanguageModelChatTool[] = mcpTools.map(t => ({
-        name: t.name,
+        name: `${name}${toolSep}${t.name}`,
         description: t.description ?? '',
         inputSchema: t.inputSchema as object,
       }));
 
       clients.push({ serverName: name, client, tools: chatTools });
-      console.log(`[Graphens] "${name}" connected — ${chatTools.length} tool(s): ${chatTools.map(t => t.name).join(', ')}`);
+      logger.debug(`"${name}" connected — ${chatTools.length} tool(s): ${chatTools.map(t => t.name).join(', ')}`);
 
       context.subscriptions.push({ dispose: () => client.close() });
     } catch (err) {
@@ -121,10 +123,13 @@ export async function callMcpTool(
   toolName: string,
   input: Record<string, unknown>
 ): Promise<string> {
-  const owner = clients.find(c => c.tools.some(t => t.name === toolName));
-  if (!owner) throw new Error(`[Graphens] No MCP client found for tool "${toolName}"`);
+  const [server, tool] = toolName.split(toolSep, 2)
+  if (!server || !tool) throw new Error(`[Graphens] Error exctracting MCP metadata from "${toolName}"`)
 
-  const result = await owner.client.callTool({ name: toolName, arguments: input });
+  const owner = clients.find(c => c.serverName === server);
+  if (!owner) throw new Error(`[Graphens] No MCP client with name "${server}" for tool "${toolName}"`);
+
+  const result = await owner.client.callTool({ name: tool, arguments: input });
 
   return (result.content as Array<{ type: string; text: string }>)
     .filter(c => c.type === 'text')
