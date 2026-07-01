@@ -115,10 +115,13 @@ export async function callMcpTool(
   logger.debug(`Calling MCP tool "${tool}" on server "${server}" with input:`, input);
   const result = await owner.client.callTool({ name: tool, arguments: input });
 
-  return (result.content as Array<{ type: string; text: string }>)
+  const asText = (result.content as Array<{ type: string; text: string }>)
     .filter(c => c.type === 'text')
     .map(c => c.text)
-    .join('\n');
+    .join('\n')
+
+  logger.debug(`MCP tool "${tool}" on server "${server}" returned:`, asText)
+  return asText;
 }
 
 function resolveWorkspaceMcpUri(

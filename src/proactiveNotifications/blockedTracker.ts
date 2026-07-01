@@ -35,6 +35,8 @@ export function startBlockedTracker(): vscode.Disposable {
     // Drop extension logs
     filter(event => event.document.fileName !== 'exthost'),
 
+    filter(event => event.document.uri.scheme !== 'chatSessionInput'),
+
     // Compute the anchor key for this event
     filter(event => getFirstLine(event) !== undefined),
 
