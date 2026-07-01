@@ -82,7 +82,8 @@ async function verifyWithModel(
     messages,
     {
       tools: [reportCheatingDetectionTool],
-      toolMode: vscode.LanguageModelChatToolMode.Required
+      toolMode: vscode.LanguageModelChatToolMode.Required,
+      justification: 'Understand if the user is asking for something forbidden.'
     },
     token
   )

@@ -13,6 +13,7 @@ import { isCheating } from '../participant/guards/cheating'
 import { getHighlightedCode } from '../participant/context/utils/getHighlightedCode'
 import { getGraphensFiles } from '../participant/context/utils/getGraphensFiles'
 import { getSessionKey } from './getSessionKey'
+import { getMcpTools } from '../participant/context/utils/getMcpTools'
 
 export async function processDebugCommands(
   request: vscode.ChatRequest,
@@ -136,6 +137,18 @@ export async function processDebugCommands(
     case 'debug_session_id': {
       const id = getSessionKey(request, context)
       stream.markdown(`Session ID is \`${id}\``)
+      break
+    }
+    case 'debug_mcp_tools':{
+      const tools = await getMcpTools()
+      logger.info('All tools: ', vscode.lm.tools)
+      logger.info('Filtered tools: ', tools)
+      stream.markdown("All MCP Tools: \n")
+      stream.markdown(vscode.lm.tools.map(t => `**${t.name}** [${t.tags.join(', ')}]`).join('\n- '))
+
+      stream.markdown("\n\n---\n\n")
+      stream.markdown("Filtered MCP Tools: \n")
+      stream.markdown(tools.map(t => `**${t.name}** [${t.tags.join(', ')}]`).join('\n- '))
       break
     }
     default: {

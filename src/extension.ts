@@ -4,8 +4,13 @@ import { GraphensParticipant } from './participant/GraphensParticipant'
 import { startBlockedTracker } from './proactiveNotifications/blockedTracker'
 import logger from './logger'
 import configStatic from './config.static'
+import { LogLevels } from 'consola'
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  logger.info('Extension Mode:', context.extensionMode)
+  if (context.extensionMode !== vscode.ExtensionMode.Production) {
+    logger.options.level = LogLevels.debug
+  }
   logger.info('Activating Graphens')
   const provider = new ChatViewProvider(context)
   const participant = new GraphensParticipant(context)

@@ -85,7 +85,11 @@ async function detectCompileCommand(
 
   const response = await model.sendRequest(
     messages,
-    { tools: [reportCompileCommandTool], toolMode: vscode.LanguageModelChatToolMode.Required },
+    { 
+      tools: [reportCompileCommandTool], 
+      toolMode: vscode.LanguageModelChatToolMode.Required,
+      justification: 'Generate an accurate command to compile the project'
+    },
     token
   )
 
