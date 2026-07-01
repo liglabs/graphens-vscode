@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import logger from '../logger';
 
 
@@ -139,35 +140,70 @@ function parseMcpJson(
 }
 
 
-function buildTransport(config: ServerConfig) {
-  if ('url' in config) {
-    return new SSEClientTransport(new URL(config.url));
-  }
-  return new StdioClientTransport({
-    command: config.command,
-    args: config.args ?? [],
-    env: { ...process.env, ...(config.env ?? {}) } as Record<string, string>,
-  });
-}
-
-
 async function connectServer(
   context: vscode.ExtensionContext,
   name: string,
   config: ServerConfig
+): Promise<Client | null> {
+  if ('url' in config) {
+    const sseTransport = new SSEClientTransport(new URL(config.url))
+    const httpTransport = new StreamableHTTPClientTransport(new URL(config.url))
+    const [sseConnected, httpConnected] = await Promise.allSettled(
+      [sseTransport, httpTransport].map(async (t) => {
+        const c = new Client({ name, version: '0' })
+        await c.connect(t)
+        return c
+      }),
+    )
+    if (!sseConnected || !httpConnected) {
+      return null
+    }
+    if (sseConnected.status === 'rejected' && httpConnected.status === 'rejected') {
+      vscode.window.showWarningMessage(
+        `[Graphens] Failed to connect MCP server "${name}": SSE - ${sseConnected.reason}, HTTP - ${httpConnected.reason}`
+      );
+      return null;
+    }
+    if (sseConnected.status === 'fulfilled') {
+      context.subscriptions.push({ dispose: () => sseConnected.value.close() });
+      return sseConnected.value
+    };
+    if (httpConnected.status === 'fulfilled') {
+      context.subscriptions.push({ dispose: () => httpConnected.value.close() });
+      return httpConnected.value;
+    }
+    return null
+  }
+  const stdioTransport = new StdioClientTransport({
+    command: config.command,
+    args: config.args ?? [],
+    env: { ...process.env, ...(config.env ?? {}) } as Record<string, string>,
+  });
+  const client = new Client({ name, version: '0' });
+  try {
+    await client.connect(stdioTransport);
+    context.subscriptions.push({ dispose: () => client.close() });
+    return client;
+  } catch (err) {
+    vscode.window.showWarningMessage(
+      `[Graphens] Failed to connect MCP server "${name}": ${err}`
+    );
+    return null;
+  }
+}
+
+
+async function listTools(
+  name: string,
+  client: Client
 ): Promise<McpToolClient | null> {
   try {
-    const client = new Client({ name, version: '0' });
-    await client.connect(buildTransport(config));
-
     const { tools: mcpTools } = await client.listTools();
     const tools: vscode.LanguageModelChatTool[] = mcpTools.map(t => ({
       name: `${name}${toolSep}${t.name}`,
       description: t.description ?? '',
       inputSchema: t.inputSchema as object,
-    }));
-
-    context.subscriptions.push({ dispose: () => client.close() });
+    }))
     logger.debug(`"${name}" connected — ${tools.length} tool(s): ${tools.map(t => t.name).join(', ')}`);
 
     return { serverName: name, client, tools };
@@ -185,9 +221,11 @@ async function connectAllServers(
   servers: Record<string, ServerConfig>
 ): Promise<McpToolClient[]> {
   const results = await Promise.allSettled(
-    Object.entries(servers).map(([name, config]) =>
-      connectServer(context, name, config)
-    )
+    Object.entries(servers).map(async ([name, config]) => {
+      const client = await connectServer(context, name, config);
+      if (!client) return null;
+      return listTools(name, client);
+    })
   );
 
   return results
