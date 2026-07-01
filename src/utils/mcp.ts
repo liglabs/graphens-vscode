@@ -87,8 +87,16 @@ export async function initMcpClients(
 
 // --- Helper to invoke a tool by name ---
 
-export function combineToolName(server: string, tool: string): string {
-  return `${server}${toolSep}${tool}`;
+export function encodeToolName(server: string, tool: string): string {
+  return `${server}${toolSep}${tool}`.replace(/\./g, '-_-dot-_-');
+}
+
+export function decodeToolName(encoded: string): { server: string; tool: string } {
+  const [server, tool] = encoded.replace(/-_-dot-_-/g, '.').split(toolSep, 2);
+  if (!server || !tool) {
+    throw new Error(`[Graphens] Error decoding tool name "${encoded}"`);
+  }
+  return { server, tool };
 }
 
 
@@ -97,14 +105,14 @@ export async function callMcpTool(
   toolName: string,
   input: Record<string, unknown>
 ): Promise<string> {
-  const [server, tool] = toolName.split(toolSep, 2);
-  if (!server || !tool)
-    throw new Error(`[Graphens] Error extracting MCP metadata from "${toolName}"`);
+  logger.debug('Attemting to call MCP tool:', toolName, 'with input:', input);
+  const { server, tool } = decodeToolName(toolName);
 
   const owner = clients.find(c => c.serverName === server);
   if (!owner)
     throw new Error(`[Graphens] No MCP client with name "${server}" for tool "${toolName}"`);
 
+  logger.debug(`Calling MCP tool "${tool}" on server "${server}" with input:`, input);
   const result = await owner.client.callTool({ name: tool, arguments: input });
 
   return (result.content as Array<{ type: string; text: string }>)

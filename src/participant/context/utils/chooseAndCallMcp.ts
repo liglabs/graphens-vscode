@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { McpToolClient, callMcpTool, combineToolName } from '../../../utils/mcp'
+import { McpToolClient, callMcpTool, encodeToolName } from '../../../utils/mcp'
 import logger from '../../../logger';
 
 export async function chooseAndCallMcp(
@@ -10,7 +10,7 @@ export async function chooseAndCallMcp(
 ): Promise<string[]> {
   const tools = clients.flatMap(c => c.tools.map(t => ({
     ...t,
-    name: combineToolName(c.serverName, t.name)
+    name: encodeToolName(c.serverName, t.name)
   })));
 
   const response = await model.sendRequest(messages, { 
