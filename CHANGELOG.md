@@ -1,5 +1,13 @@
 # graphens-vscode
 
+## 0.6.2
+
+### Patch Changes
+
+- f7a0eb6: Add justifications for the LLM calls
+- f7a0eb6: Add MCP support
+- f7a0eb6: Remove chat inputs from the blocked tracker
+
 ## 0.6.1
 
 ### Patch Changes
