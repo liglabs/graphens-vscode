@@ -54,12 +54,15 @@ export async function initMcpClients(
   context: vscode.ExtensionContext
 ): Promise<McpToolClient[]> {
   const mcpJsonUri = resolveWorkspaceMcpUri(context);
+  logger.debug('MCP JSON URI:', mcpJsonUri?.toString());
   if (!mcpJsonUri) return [];
 
   const raw = await readMcpJson(mcpJsonUri);
+  logger.debug('MCP JSON raw content:', raw);
   if (!raw) return [];
 
   const servers = parseMcpJson(raw);
+  logger.debug('Parsed MCP servers:', servers);
   if (!servers) return [];
 
   return connectAllServers(context, servers);

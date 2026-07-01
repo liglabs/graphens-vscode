@@ -1,3 +1,8 @@
-import { consola } from "consola";
+import { consola } from "consola"
+import * as vscode from 'vscode'
 
-export default consola.withTag('Graphens')
+const isDebugging = !!vscode.debug.activeDebugSession
+
+export default consola.withDefaults({
+  level: isDebugging ? 5 : 0,
+}).withTag('Graphens')

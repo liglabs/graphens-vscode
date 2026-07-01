@@ -34,8 +34,9 @@ export class GraphensParticipant {
     console.log('Graphens responding to : ', request.prompt)
     const ctx: ParticipantContext = { request, context, stream, token }
 
-    switch (request.prompt) {
+    switch (request.command) {
       case 'list_mcp':
+        stream.progress('Chargement des MCPs…')
         const clients = await this.mcpClientsPromise
         logger.info(clients)
         stream.markdown('MCPs chargés :\n')
