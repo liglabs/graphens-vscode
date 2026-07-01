@@ -15,6 +15,7 @@ import { getFilesContextMessage } from './context/messages/files'
 import { getMcpTools } from './context/utils/getMcpTools'
 import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
+import logger from '../logger'
 
 export class GraphensParticipant {
   private mcpClientsPromise: Promise<McpToolClient[]>
@@ -36,6 +37,7 @@ export class GraphensParticipant {
     switch (request.prompt) {
       case 'list_mcp':
         const clients = await this.mcpClientsPromise
+        logger.info(clients)
         stream.markdown('MCPs chargés :\n')
         for (const client of clients) {
           stream.markdown(`- ${client.serverName} : ${client.tools.map(t => t.name).join(', ')}\n`)
