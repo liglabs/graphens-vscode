@@ -13,14 +13,16 @@ import { ParticipantContext } from '../models/ParticipantContext'
 import { getErrorsContextMessages } from './context/messages/errors'
 import { getFilesContextMessage } from './context/messages/files'
 import { getMcpTools } from './context/utils/getMcpTools'
-import { McpToolClient } from '../utils/mcp'
+import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
 
 export class GraphensParticipant {
+  private mcpClientsPromise: Promise<McpToolClient[]>
   constructor(
-    private extentionContext: vscode.ExtensionContext,
-    private mcpClients: McpToolClient[]
-  ) {}
+    private extentionContext: vscode.ExtensionContext
+  ) {
+    this.mcpClientsPromise = initMcpClients(extentionContext)
+  }
 
   public responde: vscode.ChatRequestHandler = async (
     request: vscode.ChatRequest,
@@ -30,6 +32,20 @@ export class GraphensParticipant {
   ): Promise<void> => {
     console.log('Graphens responding to : ', request.prompt)
     const ctx: ParticipantContext = { request, context, stream, token }
+
+    switch (request.prompt) {
+      case 'list_mcp':
+        const clients = await this.mcpClientsPromise
+        stream.markdown('MCPs chargés :\n')
+        for (const client of clients) {
+          stream.markdown(`- ${client.serverName} : ${client.tools.map(t => t.name).join(', ')}\n`)
+        }
+        return
+      case 'reload_mcp':
+        this.mcpClientsPromise = initMcpClients(this.extentionContext)
+        stream.markdown('MCPs rechargés')
+        return
+    }
 
     if (await processDebugCommands(request, context, stream, token)) {
       return
@@ -68,7 +84,7 @@ export class GraphensParticipant {
       getWorkspaceContextMessage(),
       getErrorsContextMessages(ctx, cache),
       getFilesContextMessage(request.prompt, cache),
-      getMcpContextMessages(ctx, this.mcpClients, [vscode.LanguageModelChatMessage.User(request.prompt)])
+      getMcpContextMessages(ctx, this.mcpClientsPromise, [vscode.LanguageModelChatMessage.User(request.prompt)])
     ])
 
     stream.progress('Génération de la réponse…')

@@ -28,6 +28,14 @@
         "description": "Assistant pour des étudiants en informatique.",
         "commands": [
           {
+            "name": "list_mcp",
+            "description": "Afficher les MCPs chargés"
+          },
+          {
+            "name": "reload_mcp",
+            "description": "Recharger les MCPs"
+          },
+          {
             "name": "debug_readme"
           },
           {

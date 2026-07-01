@@ -5,9 +5,10 @@ import { chooseAndCallMcp } from '../utils/chooseAndCallMcp'
 
 export async function getMcpContextMessages(
   ctx: ParticipantContext,
-  clients: McpToolClient[],
+  clientsPromise: Promise<McpToolClient[]>,
   messages: vscode.LanguageModelChatMessage[],
 ): Promise<vscode.LanguageModelChatMessage[]>{
+  const clients = await clientsPromise
   const results = await chooseAndCallMcp(ctx.request.model, clients, messages, ctx.token)
   return results.map(r => vscode.LanguageModelChatMessage.User(r))
 }
