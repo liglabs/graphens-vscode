@@ -41,7 +41,7 @@ export class GraphensParticipant {
         logger.info(clients)
         stream.markdown('MCPs chargés :\n')
         for (const client of clients) {
-          stream.markdown(`- ${client.serverName} : ${client.tools.map(t => t.name).join(', ')}\n`)
+          stream.markdown(`- ${client.serverName} : ${client.tools.map(t => t.name).join('\n')}`)
         }
         return
       case 'reload_mcp':

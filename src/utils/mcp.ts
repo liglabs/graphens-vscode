@@ -5,9 +5,24 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import logger from '../logger';
+import * as os from 'os';
+import path from 'path';
 
 
-const toolSep = '____';
+const toolSep = '____'
+const isWindows = os.platform() === 'win32'
+
+logger.info('Platform:', os.platform(), 'isWindows:', isWindows);
+
+const nodeExecutablePath = process.execPath;
+const nodeDir = path.dirname(nodeExecutablePath);
+const currentPath = process.env.PATH || '';
+const effectivePath = `${nodeDir}${path.delimiter}${currentPath}`;
+
+const childEnv = {
+  ...process.env,
+  PATH: effectivePath
+};
 
 
 // --- Schema ---
@@ -71,6 +86,10 @@ export async function initMcpClients(
 
 
 // --- Helper to invoke a tool by name ---
+
+export function combineToolName(server: string, tool: string): string {
+  return `${server}${toolSep}${tool}`;
+}
 
 
 export async function callMcpTool(
@@ -159,6 +178,8 @@ async function connectServer(
       return null
     }
     if (sseConnected.status === 'rejected' && httpConnected.status === 'rejected') {
+      logger.error(sseConnected.reason)
+      logger.error(httpConnected.reason)
       vscode.window.showWarningMessage(
         `[Graphens] Failed to connect MCP server "${name}": SSE - ${sseConnected.reason}, HTTP - ${httpConnected.reason}`
       );
@@ -175,9 +196,9 @@ async function connectServer(
     return null
   }
   const stdioTransport = new StdioClientTransport({
-    command: config.command,
-    args: config.args ?? [],
-    env: { ...process.env, ...(config.env ?? {}) } as Record<string, string>,
+    command: isWindows ? 'cmd' : config.command,
+    args: isWindows ? ['/c', config.command, ...(config.args ?? [])] : config.args ?? [],
+    env: { ...childEnv, ...(config.env ?? {}) } as Record<string, string>,
   });
   const client = new Client({ name, version: '0' });
   try {
@@ -185,6 +206,7 @@ async function connectServer(
     context.subscriptions.push({ dispose: () => client.close() });
     return client;
   } catch (err) {
+    logger.error(err)
     vscode.window.showWarningMessage(
       `[Graphens] Failed to connect MCP server "${name}": ${err}`
     );
@@ -200,7 +222,7 @@ async function listTools(
   try {
     const { tools: mcpTools } = await client.listTools();
     const tools: vscode.LanguageModelChatTool[] = mcpTools.map(t => ({
-      name: `${name}${toolSep}${t.name}`,
+      name: t.name,
       description: t.description ?? '',
       inputSchema: t.inputSchema as object,
     }))

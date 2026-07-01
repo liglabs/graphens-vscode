@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { McpToolClient, callMcpTool } from '../../../utils/mcp'
+import { McpToolClient, callMcpTool, combineToolName } from '../../../utils/mcp'
 import logger from '../../../logger';
 
 export async function chooseAndCallMcp(
@@ -8,7 +8,10 @@ export async function chooseAndCallMcp(
   messages: vscode.LanguageModelChatMessage[],
   token: vscode.CancellationToken
 ): Promise<string[]> {
-  const tools = clients.flatMap(c => c.tools);
+  const tools = clients.flatMap(c => c.tools.map(t => ({
+    ...t,
+    name: combineToolName(c.serverName, t.name)
+  })));
 
   const response = await model.sendRequest(messages, { 
     tools,
