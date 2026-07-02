@@ -16,6 +16,7 @@ import { getMcpTools } from './context/utils/getMcpTools'
 import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
 import logger from '../logger'
+import { ResponseMetadata } from '../models/ResponseMetadata'
 
 export class GraphensParticipant {
   private mcpClientsPromise: Promise<McpToolClient[]>
@@ -30,7 +31,7 @@ export class GraphensParticipant {
     context: vscode.ChatContext,
     stream: vscode.ChatResponseStream,
     token: vscode.CancellationToken,
-  ): Promise<vscode.ChatResult> => {
+  ): Promise<{metadata: ResponseMetadata}> => {
     console.log('Graphens responding to : ', request.prompt)
     const ctx: ParticipantContext = { request, context, stream, token }
 
@@ -64,7 +65,7 @@ export class GraphensParticipant {
     if (await processDebugCommands(request, context, stream, token)) {
       return {
         metadata: {
-          command: request.command
+          command: request.command!
         }
       }
     }
@@ -156,7 +157,7 @@ export class GraphensParticipant {
         history,
         response: responseFragments.join('')
       }
-    } as vscode.ChatResult
+    }
   }
 
   public handleFeedback = async (feedback: vscode.ChatResultFeedback) => {
