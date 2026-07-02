@@ -8,7 +8,7 @@ import { extractLinks, getFilesByLink } from '../participant/context/utils/getFi
 import { getCourseContent } from '../participant/context/utils/getCourseContent'
 import { getLanguageServerErrors } from '../participant/context/utils/getLanguageServerErrors'
 import { runCompiler } from '../participant/context/utils/runCompiler'
-import { getHistory } from '../participant/context/utils/getHistory'
+import { getHistory, getHistoryAsMessages } from '../participant/context/utils/getHistory'
 import { isCheating } from '../participant/guards/cheating'
 import { getHighlightedCode } from '../participant/context/utils/getHighlightedCode'
 import { getGraphensFiles } from '../participant/context/utils/getGraphensFiles'
@@ -82,7 +82,7 @@ export async function processDebugCommands(
       logger.info(history)
       for (const message of history) {
         stream.markdown(
-          `### ${message.role}\n\n${message.content.join('')}\n\n`,
+          `### ${message.role}\n\n${message.content}\n\n`,
         )
       }
       break
@@ -90,7 +90,7 @@ export async function processDebugCommands(
     case 'debug_compiler': {
       const compilerOutput = await runCompiler(
         request.model,
-        getHistory(context),
+        getHistoryAsMessages(context),
         token,
       )
       stream.markdown(
