@@ -30,7 +30,7 @@ export class GraphensParticipant {
     context: vscode.ChatContext,
     stream: vscode.ChatResponseStream,
     token: vscode.CancellationToken,
-  ): Promise<void> => {
+  ): Promise<vscode.ChatResult> => {
     console.log('Graphens responding to : ', request.prompt)
     const ctx: ParticipantContext = { request, context, stream, token }
 
@@ -46,15 +46,27 @@ export class GraphensParticipant {
             stream.markdown(`  - ${tool.name}\n`)
           }
         }
-        return
+        return {
+          metadata: {
+            command: 'list_mcp'
+          }
+        }
       case 'reload_mcp':
         this.mcpClientsPromise = initMcpClients(this.extentionContext)
         stream.markdown('MCPs rechargés')
-        return
+        return {
+          metadata: {
+            command: 'reload_mcp'
+          }
+        }
     }
 
     if (await processDebugCommands(request, context, stream, token)) {
-      return
+      return {
+        metadata: {
+          command: request.command
+        }
+      }
     }
 
     const sessionId = getSessionKey(request, context)
@@ -72,7 +84,14 @@ export class GraphensParticipant {
       (await isCheating(request.prompt, request.model, token))
     ) {
       stream.markdown(RESPONSE_TO_CHEATER)
-      return
+      return {
+        metadata: {
+          prompt: request.prompt,
+          model: request.model.name,
+          sessionId,
+          cheatingGuard: true
+        }
+      }
     }
 
     stream.progress('Chargement du contexte…')
@@ -113,8 +132,40 @@ export class GraphensParticipant {
       justification: 'Generate a human-readable answer'
     }, token)
 
+    const responseFragments = []
+
     for await (const fragment of chatResponse.text) {
+      responseFragments.push(fragment)
       stream.markdown(fragment)
+    }
+
+    return {
+      metadata: {
+        prompt: request.prompt,
+        model: request.model.name,
+        sessionId,
+        context: {
+          readme: readmeContext.content.toString(),
+          graphens: graphensContext.content.toString(),
+          workspace: workspaceContext.content.toString(),
+          errors: errorsContext.map((msg) => msg.content.toString()),
+          files: filesContext.map((msg) => msg.content.toString()),
+          mcp: mcpContext.map((msg) => msg.content.toString())
+        },
+        response: responseFragments.join('')
+      }
+    } as vscode.ChatResult
+  }
+
+  public handleFeedback = async (feedback: vscode.ChatResultFeedback) => {
+    logger.debug('Feedback details:', feedback.result)
+    switch (feedback.kind) {
+      case vscode.ChatResultFeedbackKind.Helpful:
+        logger.info('Feedback: Helpful')
+        break
+      case vscode.ChatResultFeedbackKind.Unhelpful:
+        logger.info('Feedback: Not Helpful')
+        break
     }
   }
 }

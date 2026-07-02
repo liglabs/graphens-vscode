@@ -13,12 +13,13 @@ export async function activate(context: vscode.ExtensionContext) {
   }
   logger.info('Activating Graphens')
   const provider = new ChatViewProvider(context)
-  const participant = new GraphensParticipant(context)
-  vscode.chat.createChatParticipant(configStatic.participantId, participant.responde)
+  const graphens = new GraphensParticipant(context)
+  const participant = vscode.chat.createChatParticipant(configStatic.participantId, graphens.responde)
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
-    startBlockedTracker()
+    startBlockedTracker(),
+    participant.onDidReceiveFeedback(graphens.handleFeedback),
   )
 }
 
