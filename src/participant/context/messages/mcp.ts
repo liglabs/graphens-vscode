@@ -7,8 +7,7 @@ export async function getMcpContextMessages(
   ctx: ParticipantContext,
   clientsPromise: Promise<McpToolClient[]>,
   messages: vscode.LanguageModelChatMessage[],
-): Promise<vscode.LanguageModelChatMessage[]>{
+): Promise<string[]>{
   const clients = await clientsPromise
-  const results = await chooseAndCallMcp(ctx.request.model, clients, messages, ctx.token)
-  return results.map(r => vscode.LanguageModelChatMessage.User(r))
+  return chooseAndCallMcp(ctx.request.model, clients, messages, ctx.token)
 }

@@ -1,9 +1,8 @@
-import * as vscode from 'vscode'
 import { getGraphensFiles } from '../utils/getGraphensFiles'
 import { getGraphensSources, GraphensSourceSchema } from '../utils/getGraphensSources'
 import type { SessionCache } from '../../../utils/SessionCache'
 
-export async function getGraphensContextMessage(cache: SessionCache, onConfigError: (e:Error)=>void): Promise<vscode.LanguageModelChatMessage>{  
+export async function getGraphensContextMessage(cache: SessionCache, onConfigError: (e:Error)=>void): Promise<string>{  
   const [
     localFiles,
     remoteFiles
@@ -21,7 +20,7 @@ export async function getGraphensContextMessage(cache: SessionCache, onConfigErr
       (file) => `---\ntitle: ${file.url}\n---\n${file.content}`,
     ),
   ]
-  return vscode.LanguageModelChatMessage.User(promptParts.join("\n\n====================\n\n"))
+  return promptParts.join("\n\n====================\n\n")
 
 
 

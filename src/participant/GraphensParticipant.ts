@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
-import { getHistory } from './context/utils/getHistory'
+import { getHistory, histoyToMessages } from './context/utils/getHistory'
 import { isCheating } from './guards/cheating'
 import { processDebugCommands } from '../utils/processDebugCommands'
 import { getSessionKey } from '../utils/getSessionKey'
@@ -75,8 +75,8 @@ export class GraphensParticipant {
 
     const cheatingResponseSent = history.some(
       (message) =>
-        message.role === vscode.LanguageModelChatMessageRole.Assistant &&
-        message.content.toString() === RESPONSE_TO_CHEATER,
+        message.role === 'assistant' &&
+        message.content === RESPONSE_TO_CHEATER,
     )
 
     if (
@@ -89,7 +89,8 @@ export class GraphensParticipant {
           prompt: request.prompt,
           model: request.model.name,
           sessionId,
-          cheatingGuard: true
+          cheatingGuard: true,
+          history
         }
       }
     }
@@ -115,15 +116,15 @@ export class GraphensParticipant {
     stream.progress('Génération de la réponse…')
 
     const messages: vscode.LanguageModelChatMessage[] = [
-      vscode.LanguageModelChatMessage.User(BASE_PROMPT),
+      BASE_PROMPT,
       readmeContext,
       graphensContext,
       workspaceContext,
       ...errorsContext,
       ...filesContext,
       ...mcpContext
-    ]
-    messages.push(...history)
+    ].map((content) => vscode.LanguageModelChatMessage.User(content))
+    messages.push(...histoyToMessages(history))
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
 
     const chatResponse = await request.model.sendRequest(messages, {
@@ -145,13 +146,14 @@ export class GraphensParticipant {
         model: request.model.name,
         sessionId,
         context: {
-          readme: readmeContext.content.toString(),
-          graphens: graphensContext.content.toString(),
-          workspace: workspaceContext.content.toString(),
-          errors: errorsContext.map((msg) => msg.content.toString()),
-          files: filesContext.map((msg) => msg.content.toString()),
-          mcp: mcpContext.map((msg) => msg.content.toString())
+          readme: readmeContext,
+          graphens: graphensContext,
+          workspace: workspaceContext,
+          errors: errorsContext,
+          files: filesContext,
+          mcp: mcpContext
         },
+        history,
         response: responseFragments.join('')
       }
     } as vscode.ChatResult
