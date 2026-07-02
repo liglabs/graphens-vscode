@@ -17,6 +17,7 @@ import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
 import logger from '../logger'
 import { ResponseMetadata } from '../models/ResponseMetadata'
+import { sendFeedback } from '../utils/sendFeedback'
 
 export class GraphensParticipant {
   private mcpClientsPromise: Promise<McpToolClient[]>
@@ -165,9 +166,11 @@ export class GraphensParticipant {
     switch (feedback.kind) {
       case vscode.ChatResultFeedbackKind.Helpful:
         logger.info('Feedback: Helpful')
+        sendFeedback(true, feedback.result.metadata)
         break
       case vscode.ChatResultFeedbackKind.Unhelpful:
         logger.info('Feedback: Not Helpful')
+        sendFeedback(false, feedback.result.metadata)
         break
     }
   }
