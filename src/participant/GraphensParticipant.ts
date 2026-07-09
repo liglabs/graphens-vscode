@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import BASE_PROMPT from '../messages/BASE_PROMPT.md?raw'
 import RESPONSE_TO_CHEATER from '../messages/RESPONSE_TO_CHEATER.md?raw'
-import { getHistory } from './context/utils/getHistory'
+import { getHistory, histoyToMessages } from './context/utils/getHistory'
 import { isCheating } from './guards/cheating'
 import { processDebugCommands } from '../utils/processDebugCommands'
 import { getSessionKey } from '../utils/getSessionKey'
@@ -16,6 +16,8 @@ import { getMcpTools } from './context/utils/getMcpTools'
 import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
 import logger from '../logger'
+import { ResponseMetadata } from '../models/ResponseMetadata'
+import { sendFeedback } from '../utils/sendFeedback'
 
 export class GraphensParticipant {
   private mcpClientsPromise: Promise<McpToolClient[]>
@@ -30,7 +32,7 @@ export class GraphensParticipant {
     context: vscode.ChatContext,
     stream: vscode.ChatResponseStream,
     token: vscode.CancellationToken,
-  ): Promise<void> => {
+  ): Promise<{metadata: ResponseMetadata}> => {
     console.log('Graphens responding to : ', request.prompt)
     const ctx: ParticipantContext = { request, context, stream, token }
 
@@ -46,15 +48,27 @@ export class GraphensParticipant {
             stream.markdown(`  - ${tool.name}\n`)
           }
         }
-        return
+        return {
+          metadata: {
+            command: 'list_mcp'
+          }
+        }
       case 'reload_mcp':
         this.mcpClientsPromise = initMcpClients(this.extentionContext)
         stream.markdown('MCPs rechargés')
-        return
+        return {
+          metadata: {
+            command: 'reload_mcp'
+          }
+        }
     }
 
     if (await processDebugCommands(request, context, stream, token)) {
-      return
+      return {
+        metadata: {
+          command: request.command!
+        }
+      }
     }
 
     const sessionId = getSessionKey(request, context)
@@ -63,8 +77,8 @@ export class GraphensParticipant {
 
     const cheatingResponseSent = history.some(
       (message) =>
-        message.role === vscode.LanguageModelChatMessageRole.Assistant &&
-        message.content.toString() === RESPONSE_TO_CHEATER,
+        message.role === 'assistant' &&
+        message.content === RESPONSE_TO_CHEATER,
     )
 
     if (
@@ -72,7 +86,15 @@ export class GraphensParticipant {
       (await isCheating(request.prompt, request.model, token))
     ) {
       stream.markdown(RESPONSE_TO_CHEATER)
-      return
+      return {
+        metadata: {
+          prompt: request.prompt,
+          model: request.model.name,
+          sessionId,
+          cheatingGuard: true,
+          history
+        }
+      }
     }
 
     stream.progress('Chargement du contexte…')
@@ -96,15 +118,15 @@ export class GraphensParticipant {
     stream.progress('Génération de la réponse…')
 
     const messages: vscode.LanguageModelChatMessage[] = [
-      vscode.LanguageModelChatMessage.User(BASE_PROMPT),
+      BASE_PROMPT,
       readmeContext,
       graphensContext,
       workspaceContext,
       ...errorsContext,
       ...filesContext,
       ...mcpContext
-    ]
-    messages.push(...history)
+    ].map((content) => vscode.LanguageModelChatMessage.User(content))
+    messages.push(...histoyToMessages(history))
     messages.push(vscode.LanguageModelChatMessage.User(request.prompt))
 
     const chatResponse = await request.model.sendRequest(messages, {
@@ -113,8 +135,43 @@ export class GraphensParticipant {
       justification: 'Generate a human-readable answer'
     }, token)
 
+    const responseFragments = []
+
     for await (const fragment of chatResponse.text) {
+      responseFragments.push(fragment)
       stream.markdown(fragment)
+    }
+
+    return {
+      metadata: {
+        prompt: request.prompt,
+        model: request.model.name,
+        sessionId,
+        context: {
+          readme: readmeContext,
+          graphens: graphensContext,
+          workspace: workspaceContext,
+          errors: errorsContext,
+          files: filesContext,
+          mcp: mcpContext
+        },
+        history,
+        response: responseFragments.join('')
+      }
+    }
+  }
+
+  public handleFeedback = async (feedback: vscode.ChatResultFeedback) => {
+    logger.debug('Feedback details:', feedback.result)
+    switch (feedback.kind) {
+      case vscode.ChatResultFeedbackKind.Helpful:
+        logger.info('Feedback: Helpful')
+        sendFeedback(true, feedback.result.metadata)
+        break
+      case vscode.ChatResultFeedbackKind.Unhelpful:
+        logger.info('Feedback: Not Helpful')
+        sendFeedback(false, feedback.result.metadata)
+        break
     }
   }
 }

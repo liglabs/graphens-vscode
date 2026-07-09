@@ -1,8 +1,7 @@
-import * as vscode from 'vscode'
 import { getOpenFiles } from '../utils/getOpenFiles'
 import { getHighlightedCode } from '../utils/getHighlightedCode'
 
-export async function getWorkspaceContextMessage(): Promise<vscode.LanguageModelChatMessage>{
+export async function getWorkspaceContextMessage(): Promise<string>{
   const [
     openFiles,
     highlightedCode
@@ -16,5 +15,5 @@ export async function getWorkspaceContextMessage(): Promise<vscode.LanguageModel
   }
   messageParts.push("Voici le contenu de tous les fichiers ouverts dans l'éditeur :")
   messageParts.push(...openFiles.map((file) => `### ${file.path}\n\n${file.content}`))
-  return vscode.LanguageModelChatMessage.User(messageParts.join('\n\n====================\n\n'))
+  return messageParts.join('\n\n====================\n\n')
 }
