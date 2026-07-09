@@ -1,9 +1,5 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -15,15 +11,10 @@ if (!projectRoot) {
   process.exit(1)
 }
 
-const server = new Server(
+const server = new McpServer(
   {
     name: 'graphens-workspace-mcp',
     version: '0.1.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
   }
 )
 
@@ -65,27 +56,16 @@ async function findReadme(dir: string): Promise<string | null> {
   return null
 }
 
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: 'get_readme',
-        description: "Grab or retrieve the contents of the workspace's README.md file.",
-        inputSchema: {
-          type: 'object',
-          properties: {},
-        },
-      },
-    ],
-  }
-})
-
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  if (request.params.name === 'get_readme') {
-    try {
-      const readmePath = await findReadme(projectRoot)
-      if (!readmePath) {
-        return {
+server.registerTool(
+  'get_readme', 
+  {
+    description: "Grab or retrieve the contents of the workspace's README.md file."
+  },
+  async () => {
+  try {
+    const readmePath = await findReadme(projectRoot)
+    if (!readmePath) {
+      return {
           content: [
             {
               type: 'text',
@@ -115,9 +95,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         isError: true,
       }
     }
-  }
-  throw new Error(`Tool not found: ${request.params.name}`)
-})
+  })
 
 async function run() {
   const transport = new StdioServerTransport()
