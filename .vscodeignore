@@ -11,4 +11,6 @@ tsconfig.json
 !dist/**
 ui
 !ui/dist/**
+mcp
+!mcp/dist/**
 node_modules/**

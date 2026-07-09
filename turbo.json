@@ -7,11 +7,14 @@
     "build:ext": {
       "outputs": ["dist/**"]
     },
+    "build:mcp": {
+      "outputs": ["mcp/dist/**"]
+    },
     "build": {
-      "dependsOn": ["build:ext", "build:ui"]
+      "dependsOn": ["build:ext", "build:ui", "build:mcp"]
     },
     "package": {
-      "dependsOn": ["build:ext", "build:ui"],
+      "dependsOn": ["build:ext", "build:ui", "build:mcp"],
       "outputs": ["*.vsix"]
     }
   }
