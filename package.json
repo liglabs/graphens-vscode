@@ -25,6 +25,11 @@
         "label": "Graphens Workspace MCP"
       }
     ],
+    "customAgents": [
+      {
+        "file": "./agents/agraphens.agent.md"
+      }
+    ],
     "chatParticipants": [
       {
         "id": "graphens-ai.tutor",
