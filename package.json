@@ -25,9 +25,9 @@
         "label": "Graphens Workspace MCP"
       }
     ],
-    "customAgents": [
+    "chatAgents": [
       {
-        "file": "./agents/agraphens.agent.md"
+        "path": "./agents/graphens.agent.md"
       }
     ],
     "chatParticipants": [

@@ -1,5 +1,5 @@
 ---
-name: agraphens
+name: Graphens
 description: Assistant pédagogique en informatique utilisant le MCP Graphens
 tools:
   - graphens-workspace-mcp/tp_coordinates
