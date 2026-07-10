@@ -1,7 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import * as fs from 'fs/promises'
-import * as path from 'path'
+import {
+  getReadme,
+  getGraphensConfig,
+  getGraphensFiles,
+  getGraphensSources
+} from './functions.js'
 
 // On MCP initialization you should grab project root path from command line arguments.
 const projectRoot = process.argv[2]
@@ -18,84 +22,77 @@ const server = new McpServer(
   }
 )
 
-// Helper to recursively find README.md in directory (excluding node_modules, dist, etc.)
-async function findReadme(dir: string): Promise<string | null> {
-  try {
-    const files = await fs.readdir(dir)
-    
-    // First check for a direct match in the current directory (case-insensitive)
-    const readmeFile = files.find(f => f.toLowerCase() === 'readme.md')
-    if (readmeFile) {
-      return path.join(dir, readmeFile)
-    }
-
-    // Otherwise look in subdirectories recursively
-    for (const file of files) {
-      if (
-        file === 'node_modules' ||
-        file === '.git' ||
-        file === 'dist' ||
-        file === '.turbo' ||
-        file === '.vscode' ||
-        file === 'build'
-      ) {
-        continue
-      }
-      const fullPath = path.join(dir, file)
-      const stat = await fs.stat(fullPath)
-      if (stat.isDirectory()) {
-        const found = await findReadme(fullPath)
-        if (found) {
-          return found
-        }
-      }
-    }
-  } catch (error) {
-    // Ignore and proceed
-  }
-  return null
-}
-
+// TP Coordinates Tool
 server.registerTool(
-  'get_readme', 
+  'tp_coordinates',
   {
-    description: "Grab or retrieve the contents of the workspace's README.md file."
+    description: "Get coordinates of the current TP (course/lab), which includes only the IDs (ue, cours, tp_name) from the .graphens/config.yaml configuration."
   },
   async () => {
-  try {
-    const readmePath = await findReadme(projectRoot)
-    if (!readmePath) {
-      return {
-          content: [
-            {
-              type: 'text',
-              text: "Aucun fichier README.md trouvé dans l'espace de travail.",
-            },
-          ],
+    try {
+      const config = await getGraphensConfig(projectRoot)
+      if (!config) {
+        return {
+          content: [{ type: 'text', text: 'No Graphens configuration found.' }]
         }
       }
-
-      const readmeContent = await fs.readFile(readmePath, 'utf-8')
+      const coords = {
+        ue: config.ue ?? '',
+        cours: config.cours ?? '',
+        tp_name: config.tp_name ?? ''
+      }
       return {
-        content: [
-          {
-            type: 'text',
-            text: `Voici le contenu du README.md trouvé dans l'espace de travail :\n\n${readmeContent}`,
-          },
-        ],
+        content: [{ type: 'text', text: JSON.stringify(coords, null, 2) }]
       }
     } catch (error: any) {
       return {
-        content: [
-          {
-            type: 'text',
-            text: `Erreur lors de la lecture du fichier README.md: ${error.message}`,
-          },
-        ],
-        isError: true,
+        content: [{ type: 'text', text: `Error retrieving TP coordinates: ${error.message}` }],
+        isError: true
       }
     }
-  })
+  }
+)
+
+// TP Recommendations Tool
+server.registerTool(
+  'tp_recommendations',
+  {
+    description: "Get recommendations (instructions/course guidelines) for the current TP, including the README.md content, local .graphens/*.md files, and remote files downloaded from the config sources."
+  },
+  async () => {
+    try {
+      const [readme, localFiles, remoteFiles] = await Promise.all([
+        getReadme(projectRoot),
+        getGraphensFiles(projectRoot),
+        getGraphensSources(projectRoot)
+      ])
+      
+      let text = ''
+      if (readme) {
+        text += `## README.md\n\n${readme}\n\n====================\n\n`
+      }
+      
+      text += "Custom instructions for the AI:\n\n"
+      if (localFiles.length === 0 && remoteFiles.length === 0) {
+        text += "No custom instructions or recommendations found."
+      } else {
+        const parts = [
+          ...localFiles.map(f => `--- (Local File)\ntitle: ${f.name}\n---\n${f.content}`),
+          ...remoteFiles.map(f => `--- (Remote File)\ntitle: ${f.url}\n---\n${f.content}`)
+        ]
+        text += parts.join("\n\n====================\n\n")
+      }
+      return {
+        content: [{ type: 'text', text }]
+      }
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Error retrieving TP recommendations: ${error.message}` }],
+        isError: true
+      }
+    }
+  }
+)
 
 async function run() {
   const transport = new StdioServerTransport()

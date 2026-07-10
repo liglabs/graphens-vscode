@@ -1,9 +1,6 @@
 import * as vscode from 'vscode'
 import logger from '../logger'
-import { getReadme } from '../participant/context/utils/getReadme'
-import { getOpenFiles } from '../participant/context/utils/getOpenFiles'
-import { getGraphensSources } from '../participant/context/utils/getGraphensSources'
-import { getGraphensConfig } from '../participant/context/utils/getGraphensConfig'
+import { getReadme, getGraphensSources, getGraphensConfig } from 'graphens-vscode-mcp'
 import { extractLinks, getFilesByLink } from '../participant/context/utils/getFilesByLink'
 import { getCourseContent } from '../participant/context/utils/getCourseContent'
 import { getLanguageServerErrors } from '../participant/context/utils/getLanguageServerErrors'
@@ -11,7 +8,8 @@ import { runCompiler } from '../participant/context/utils/runCompiler'
 import { getHistory, getHistoryAsMessages } from '../participant/context/utils/getHistory'
 import { isCheating } from '../participant/guards/cheating'
 import { getHighlightedCode } from '../participant/context/utils/getHighlightedCode'
-import { getGraphensFiles } from '../participant/context/utils/getGraphensFiles'
+import { getOpenFiles } from '../participant/context/utils/getOpenFiles'
+import { getGraphensFiles } from 'graphens-vscode-mcp'
 import { getSessionKey } from './getSessionKey'
 import { getMcpTools } from '../participant/context/utils/getMcpTools'
 
@@ -21,9 +19,10 @@ export async function processDebugCommands(
   stream: vscode.ChatResponseStream,
   token: vscode.CancellationToken,
 ): Promise<boolean> {
+  const projectRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? ''
   switch (request.command) {
     case 'debug_readme': {
-      const readme = await getReadme()
+      const readme = await getReadme(projectRoot)
       if (readme === '') {
         stream.markdown('No README.md file found in the workspace.')
         break
@@ -43,7 +42,7 @@ export async function processDebugCommands(
       break
     }
     case 'debug_graphens_files': {
-      const files = await getGraphensFiles()
+      const files = await getGraphensFiles(projectRoot)
       if (files.length === 0) {
         stream.markdown('No .graphens markdown files found in the workspace.')
         break
@@ -124,13 +123,13 @@ export async function processDebugCommands(
       break
     }
     case 'debug_graphens_config': {
-      const config = await getGraphensConfig()
+      const config = await getGraphensConfig(projectRoot)
       logger.info(config)
       stream.markdown('Config is in logs')
       break
     }
     case 'debug_graphens_sources': {
-      logger.info('Sources: ', await getGraphensSources())
+      logger.info('Sources: ', await getGraphensSources(projectRoot))
       stream.markdown('Sources are in logs')
       break
     }

@@ -1,13 +1,14 @@
-import { getGraphensFiles } from '../utils/getGraphensFiles'
-import { getGraphensSources, GraphensSourceSchema } from '../utils/getGraphensSources'
+import * as vscode from 'vscode'
+import { getGraphensFiles, getGraphensSources, GraphensSourceSchema } from 'graphens-vscode-mcp'
 import type { SessionCache } from '../../../utils/SessionCache'
 
 export async function getGraphensContextMessage(cache: SessionCache, onConfigError: (e:Error)=>void): Promise<string>{  
+  const projectRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? ''
   const [
     localFiles,
     remoteFiles
   ] = await Promise.all([
-    getGraphensFiles(),
+    getGraphensFiles(projectRoot),
     getGraphensSourcesCached()
   ])
 
@@ -29,7 +30,7 @@ export async function getGraphensContextMessage(cache: SessionCache, onConfigErr
     if (cached) {
       return cached
     }
-    const response = getGraphensSources(onConfigError)
+    const response = await getGraphensSources(projectRoot, onConfigError)
     await cache.set('graphens.remote', response)
     return response
   }

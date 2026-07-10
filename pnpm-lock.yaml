@@ -44,6 +44,9 @@ importers:
       eslint:
         specifier: ^10.4.0
         version: 10.4.0(jiti@2.7.0)(supports-color@8.1.1)
+      graphens-vscode-mcp:
+        specifier: workspace:*
+        version: link:mcp
       mocha:
         specifier: ^11.7.5
         version: 11.7.5
@@ -77,6 +80,18 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(supports-color@8.1.1)(zod@4.4.3)
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
+      ufo:
+        specifier: ^1.6.4
+        version: 1.6.4
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^25.9.1
