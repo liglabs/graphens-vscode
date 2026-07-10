@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       formats: ['es'],
-      fileName: () => 'index.js',
+      fileName: () => 'index.mjs',
     },
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,

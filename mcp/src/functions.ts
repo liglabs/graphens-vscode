@@ -4,9 +4,9 @@ import * as yaml from 'yaml'
 import { parseFilename } from 'ufo'
 import { ofetch } from 'ofetch'
 import { z } from 'zod'
-import { GraphensConfigSchema } from './GraphensConfig'
-import type { GraphensConfig } from './GraphensConfig'
-import ReadGraphensConfigError from './ReadGraphensConfigError'
+import { GraphensConfigSchema } from './GraphensConfig.js'
+import type { GraphensConfig } from './GraphensConfig.js'
+import ReadGraphensConfigError from './ReadGraphensConfigError.js'
 
 export { GraphensConfigSchema }
 export type { GraphensConfig }
@@ -127,7 +127,7 @@ export async function getGraphensSources(
     return []
   }
 
-  const promises = config.sources.map(async (src) => {
+  const promises = config.sources.map(async (src: string) => {
     const response = await fetch(src, { method: 'HEAD' })
 
     if (!response.ok) {
@@ -147,6 +147,6 @@ export async function getGraphensSources(
 
   const results = await Promise.allSettled(promises)
   return results
-    .filter((src): src is PromiseFulfilledResult<GraphensSource> => src.status === 'fulfilled')
-    .map((src) => src.value)
+    .filter((src: PromiseSettledResult<GraphensSource>): src is PromiseFulfilledResult<GraphensSource> => src.status === 'fulfilled')
+    .map((src: PromiseFulfilledResult<GraphensSource>) => src.value)
 }

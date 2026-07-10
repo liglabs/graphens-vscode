@@ -19,7 +19,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0]
   const projectRoot = workspaceFolder ? workspaceFolder.uri.fsPath : ''
-  const workspaceMcpPath = path.join(context.extensionPath, 'mcp', 'dist', 'index.js')
+  const workspaceMcpPath = path.join(context.extensionPath, 'mcp', 'dist', 'index.mjs')
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
