@@ -39,11 +39,11 @@ const server = new McpServer(
   }
 )
 
-// TP Coordinates Tool
+// TP Info Tool
 server.registerTool(
-  'tp_coordinates',
+  'tp_info',
   {
-    description: "Get coordinates of the current TP (course/lab), which includes only the IDs (ue, cours, tp_name) from the .graphens/config.yaml configuration."
+    description: "Get information about the current TP (course/lab), which includes only the IDs (ue, cours, tp_name) from the .graphens/config.yaml configuration."
   },
   async () => {
     try {
