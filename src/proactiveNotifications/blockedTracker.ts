@@ -69,7 +69,9 @@ export function startBlockedTracker(): vscode.Disposable {
       return vscode.commands.executeCommand(
         'workbench.action.chat.open',
         {
-          query: `@graphens Je suis bloqué(e) à la ligne ${line} de ${parseFilename(file)}. Peux-tu m'aider à comprendre quel pourrait être le problème ?`
+          query: `Je suis bloqué(e) à la ligne ${line} de ${parseFilename(file)}. Peux-tu m'aider à comprendre quel pourrait être le problème ?`,
+          isPartialQuery : true,
+          mode: 'Graphens'
         }
       );
     })
