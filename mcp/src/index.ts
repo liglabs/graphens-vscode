@@ -1,5 +1,8 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   getReadme,
   getGraphensConfig,
@@ -15,10 +18,24 @@ if (!projectRoot) {
   process.exit(1)
 }
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const pkgPath = join(__dirname, '..', '..', 'package.json')
+
+let mcpVersion = '1.0.0'
+try {
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
+  if (pkg.version) {
+    mcpVersion = pkg.version
+  }
+} catch (error) {
+  console.error('[Graphens Workspace MCP] Failed to read version from package.json:', error)
+}
+
 const server = new McpServer(
   {
     name: 'graphens-workspace-mcp',
-    version: '0.1.0',
+    version: mcpVersion,
   }
 )
 
