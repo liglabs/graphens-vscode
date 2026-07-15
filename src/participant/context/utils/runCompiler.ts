@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { getReadme } from './getReadme'
+import { getReadme } from 'graphens-vscode-mcp'
 import { reportCompileCommandTool, reportCompileCommandSchema } from '../../../tools/reportCompileCommand'
 import { parseToolCallFromStream } from '../../../utils/parseToolCall'
 import z from 'zod'
@@ -123,7 +123,8 @@ export async function runCompiler(
   let command: string | null = getCompileCommandFromHistory(history)
 
   if (!command) {
-    const [readme, projectFiles] = await Promise.all([getReadme(), findProjectFiles()])
+    const projectRoot = cwd ?? ''
+    const [readme, projectFiles] = await Promise.all([getReadme(projectRoot), findProjectFiles()])
     command = await detectCompileCommand(model, projectFiles, readme, token)
   }
 

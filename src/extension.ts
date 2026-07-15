@@ -1,4 +1,6 @@
 import * as vscode from 'vscode'
+import * as path from 'path'
+import * as fs from 'fs'
 import { ChatViewProvider } from './ChatViewProvider'
 import { GraphensParticipant } from './participant/GraphensParticipant'
 import { startBlockedTracker } from './proactiveNotifications/blockedTracker'
@@ -16,10 +18,39 @@ export async function activate(context: vscode.ExtensionContext) {
   const graphens = new GraphensParticipant(context)
   const participant = vscode.chat.createChatParticipant(configStatic.participantId, graphens.responde)
 
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]
+  const projectRoot = workspaceFolder ? workspaceFolder.uri.fsPath : ''
+  const workspaceMcpPath = path.join(context.extensionPath, 'mcp', 'dist', 'index.mjs')
+
+
+  const mcpVersionPath = path.join(context.extensionPath, 'mcp', 'dist', 'version.json')
+  let mcpVersion = 'undefined'
+  try {
+    const versionInfo = JSON.parse(fs.readFileSync(mcpVersionPath, 'utf8'))
+    if (versionInfo.version) {
+      mcpVersion = versionInfo.version
+    }
+  } catch (error) {
+    logger.error('Failed to read MCP version from version.json, falling back to extension version:', error)
+  }
+
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
     startBlockedTracker(),
     participant.onDidReceiveFeedback(graphens.handleFeedback),
+    vscode.lm.registerMcpServerDefinitionProvider('graphens-workspace-mcp', {
+      provideMcpServerDefinitions() {
+        return [
+          new vscode.McpStdioServerDefinition(
+            'Graphens Workspace MCP',
+            'node',
+            [workspaceMcpPath, projectRoot],
+            {},
+            mcpVersion
+          )
+        ]
+      }
+    })
   )
 }
 

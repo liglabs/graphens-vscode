@@ -8,7 +8,7 @@
     "url": "https://github.com/LigLabs/graphens-vscode"
   },
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.125.0"
   },
   "categories": [
     "AI",
@@ -19,6 +19,17 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "graphens-workspace-mcp",
+        "label": "Graphens Workspace MCP"
+      }
+    ],
+    "chatAgents": [
+      {
+        "path": "./agents/graphens.agent.md"
+      }
+    ],
     "chatParticipants": [
       {
         "id": "graphens-ai.tutor",
@@ -29,11 +40,11 @@
         "commands": [
           {
             "name": "list_mcp",
-            "description": "Afficher les MCPs chargés"
+            "description": "Affiche les serveurs MCP chargés dans l'extension."
           },
           {
             "name": "reload_mcp",
-            "description": "Recharger les MCPs"
+            "description": "Recharge tous les serveurs MCP configurés."
           },
           {
             "name": "debug_readme"
@@ -111,8 +122,10 @@
     "test": "tsc -p tsconfig.json && node ./dist/test/runTest.js",
     "watch:ui": "pnpm --filter graphens-vscode-ui watch",
     "watch:ext": "vite build --config vite.extension.config.ts --watch",
-    "watch": "concurrently \"npm:watch:ext\" \"npm:watch:ui\"",
+    "watch:mcp": "pnpm --filter graphens-vscode-mcp watch",
+    "watch": "concurrently \"npm:watch:ext\" \"npm:watch:ui\" \"npm:watch:mcp\"",
     "build:ui": "pnpm --filter graphens-vscode-ui build",
+    "build:mcp": "pnpm --filter graphens-vscode-mcp build",
     "build:ext": "vite build --config vite.extension.config.ts",
     "dev:ui": "pnpm --filter graphens-vscode-ui dev",
     "package": "npx vsce package",
@@ -122,9 +135,10 @@
     "@changesets/cli": "^2.31.0",
     "@graphens/schemas": "github:liglabs/graphens-schemas",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "graphens-vscode-mcp": "workspace:*",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.1",
-    "@types/vscode": "^1.96.0",
+    "@types/vscode": "^1.125.0",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",
     "@vscode/test-electron": "^2.5.2",

@@ -1,6 +1,7 @@
 packages:
   - "."
   - ui
+  - mcp
 
 onlyBuiltDependencies:
   - esbuild
