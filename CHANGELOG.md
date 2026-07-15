@@ -1,5 +1,18 @@
 # graphens-vscode
 
+## 0.7.0
+
+### Minor Changes
+
+- 85612a3: Init custom chat agent
+- 85612a3: Register custom agent
+- 85612a3: Extension local MCP
+
+### Patch Changes
+
+- 85612a3: Sync MCP version on server and client
+- 85612a3: Generate MCP version on build
+
 ## 0.6.2
 
 ### Patch Changes
