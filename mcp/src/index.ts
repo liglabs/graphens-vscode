@@ -43,7 +43,7 @@ const server = new McpServer(
 server.registerTool(
   'tp_info',
   {
-    description: "Get information about the current TP (course/lab), which includes only the IDs (ue, cours, tp_name) from the .graphens/config.yaml configuration."
+    description: "Récupère les métadonnées du TP actuel (identifiants de l'UE, du cours, et nom du TP) à partir de la configuration `.graphens/config.yaml`. Recommandé avant d'appeler le RAG pour obtenir les métadonnées du TP."
   },
   async () => {
     try {
@@ -74,7 +74,7 @@ server.registerTool(
 server.registerTool(
   'tp_recommendations',
   {
-    description: "Get recommendations (instructions/course guidelines) for the current TP, including the README.md content, local .graphens/*.md files, and remote files downloaded from the config sources."
+    description: "Récupère les recommandations et les consignes du TP actuel (contenu du README.md, fichiers locaux `.graphens/*.md` et fichiers distants configurés)."
   },
   async () => {
     try {

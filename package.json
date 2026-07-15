@@ -40,11 +40,11 @@
         "commands": [
           {
             "name": "list_mcp",
-            "description": "Afficher les MCPs chargés"
+            "description": "Affiche les serveurs MCP chargés dans l'extension."
           },
           {
             "name": "reload_mcp",
-            "description": "Recharger les MCPs"
+            "description": "Recharge tous les serveurs MCP configurés."
           },
           {
             "name": "debug_readme"
