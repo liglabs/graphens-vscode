@@ -22,15 +22,16 @@ export async function activate(context: vscode.ExtensionContext) {
   const projectRoot = workspaceFolder ? workspaceFolder.uri.fsPath : ''
   const workspaceMcpPath = path.join(context.extensionPath, 'mcp', 'dist', 'index.mjs')
 
-  const packageJsonPath = path.join(context.extensionPath, 'package.json')
-  let extensionVersion = '0.6.2'
+
+  const mcpVersionPath = path.join(context.extensionPath, 'mcp', 'dist', 'version.json')
+  let mcpVersion = 'undefined'
   try {
-    const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
-    if (pkg.version) {
-      extensionVersion = pkg.version
+    const versionInfo = JSON.parse(fs.readFileSync(mcpVersionPath, 'utf8'))
+    if (versionInfo.version) {
+      mcpVersion = versionInfo.version
     }
   } catch (error) {
-    logger.error('Failed to read extension version from package.json:', error)
+    logger.error('Failed to read MCP version from version.json, falling back to extension version:', error)
   }
 
   context.subscriptions.push(
@@ -45,7 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
             'node',
             [workspaceMcpPath, projectRoot],
             {},
-            extensionVersion
+            mcpVersion
           )
         ]
       }

@@ -20,16 +20,16 @@ if (!projectRoot) {
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const pkgPath = join(__dirname, '..', '..', 'package.json')
+const versionPath = join(__dirname, 'version.json')
 
 let mcpVersion = '1.0.0'
 try {
-  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
-  if (pkg.version) {
-    mcpVersion = pkg.version
+  const versionInfo = JSON.parse(readFileSync(versionPath, 'utf-8'))
+  if (versionInfo.version) {
+    mcpVersion = versionInfo.version
   }
 } catch (error) {
-  console.error('[Graphens Workspace MCP] Failed to read version from package.json:', error)
+  console.error('[Graphens Workspace MCP] Failed to read version from version.json:', error)
 }
 
 const server = new McpServer(
