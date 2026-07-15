@@ -2,8 +2,11 @@
 name: Graphens
 description: Assistant pédagogique en informatique utilisant le MCP Graphens
 tools:
-  - graphens-workspace-mcp/tp_coordinates
-  - graphens-workspace-mcp/tp_recommendations
+  - graphens-workspace-mcp
+  - Graphens-RAG-MCP
+  - execute
+  - read
+  - search
 ---
 
 # Rôle
