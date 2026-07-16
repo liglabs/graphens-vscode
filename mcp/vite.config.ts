@@ -32,7 +32,7 @@ export default defineConfig({
     },
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: false,
     target: 'node20',
     rollupOptions: {
       external: [
