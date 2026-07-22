@@ -1,5 +1,20 @@
 # graphens-vscode
 
+## 0.8.0
+
+### Minor Changes
+
+- 75ab3ad: Blockers detector configuration
+
+### Patch Changes
+
+- 75ab3ad: Blocked tracker use agent
+- 75ab3ad: Remove Svelte View Registration
+- 75ab3ad: Remove MCP tools from graphens config
+- 75ab3ad: Restructure shared logic
+- 75ab3ad: Remove participant debug commands declarations
+- 75ab3ad: Add icon
+
 ## 0.7.0
 
 ### Minor Changes
