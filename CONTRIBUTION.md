@@ -86,10 +86,11 @@ La logique opérationnelle derrière le chat est structurée au sein de la class
 ## Détecteur de Blocage (Blocked Tracker)
 
 Le fichier [src/proactiveNotifications/blockedTracker.ts](./src/proactiveNotifications/blockedTracker.ts) implémente un système de détection proactif de blocage étudiant.
+- **Activation** : Au démarrage, l'extension lit le fichier de configuration `.graphens/config.yaml`. Le tracker n'est instancié que si `blockers_detector` est activé (soit défini sur `true`, soit configuré avec un objet de paramètres). Par défaut, il est désactivé.
 - **Fonctionnement** : Il s'abonne aux événements `vscode.workspace.onDidChangeTextDocument` à l'aide de flux de programmation réactive (RxJS).
 - **Définition d'un Point d'Ancrage** : À chaque modification, il extrait un point d'ancrage constitué du chemin du fichier et de la ligne modifiée.
-- **Détection** : L'opérateur RxJS `switchMap` redémarre un minuteur de **5 minutes**. Si l'étudiant effectue d'autres modifications dans une zone proche (moins de 10 lignes d'écart dans le même fichier), l'ancrage reste considéré comme identique (grâce à l'opérateur `distinctUntilChanged`). Si aucune modification en dehors de cette zone ne survient avant la fin du minuteur de 5 minutes, l'utilisateur est considéré comme "bloqué".
-- **Interaction avec l'Agent** : Une notification d'information VS Code s'affiche alors : `"Vous modifiez autour de la ligne X dans fichier depuis 5 minutes. Besoin d'aide ?"`. Si l'étudiant clique sur `"Demander à l'IA"`, l'extension ouvre automatiquement l'interface de chat de VS Code avec une requête pré-remplie demandant à l'agent d'aider à résoudre le problème à cette ligne précise.
+- **Détection** : L'opérateur RxJS `switchMap` redémarre un minuteur d'inactivité (par défaut **5 minutes**, configurable via la clé `period`). Si l'étudiant effectue d'autres modifications dans une zone proche (par défaut moins de **10 lignes** d'écart, configurable via la clé `radius`), l'ancrage reste considéré comme identique (grâce à l'opérateur `distinctUntilChanged`). Si aucune modification en dehors de cette zone ne survient avant la fin du minuteur, l'utilisateur est considéré comme "bloqué".
+- **Interaction avec l'Agent** : Une notification d'information VS Code s'affiche alors : `"Vous modifiez autour de la ligne X dans "fichier" depuis Y minutes. Besoin d'aide ?"`. Si l'étudiant clique sur `"Demander à l'IA"`, l'extension ouvre automatiquement l'interface de chat de VS Code avec une requête pré-remplie demandant à l'agent d'aider à résoudre le problème à cette ligne précise.
 
 ---
 

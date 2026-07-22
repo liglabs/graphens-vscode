@@ -4,12 +4,12 @@ import * as yaml from 'yaml'
 import { parseFilename } from 'ufo'
 import { ofetch } from 'ofetch'
 import { z } from 'zod'
-import { GraphensConfigSchema } from './GraphensConfig.js'
-import type { GraphensConfig } from './GraphensConfig.js'
+import { GraphensConfigSchema, BlockersDetectorConfigSchema } from './GraphensConfig.js'
+import type { GraphensConfig, BlockersDetectorConfig } from './GraphensConfig.js'
 import ReadGraphensConfigError from './ReadGraphensConfigError.js'
 
-export { GraphensConfigSchema }
-export type { GraphensConfig }
+export { GraphensConfigSchema, BlockersDetectorConfigSchema }
+export type { GraphensConfig, BlockersDetectorConfig }
 export { ReadGraphensConfigError }
 
 export interface GraphensFile {

@@ -18,11 +18,11 @@
 *(Note : Un participant de chat classique est également accessible dans le panneau de chat natif de VS Code via la commande `@graphens`, mais il propose des fonctionnalités plus simplifiées par rapport aux modes d'agent de la barre latérale).*
 
 ### À quelles notifications s'attendre ? (Détecteur de blocage)
-L'extension intègre un système intelligent appelé **Blocked Tracker** (détecteur de blocage). 
-* **Comment ça marche ?** : Si vous modifiez du code ou restez concentré sur la même ligne (ou à moins de 10 lignes d'intervalle) dans le même fichier pendant plus de **5 minutes**, l'extension détecte que vous rencontrez potentiellement une difficulté.
+L'extension intègre un système intelligent appelé **Blocked Tracker** (détecteur de blocage). **Par défaut, il est désactivé.** Il peut être activé et personnalisé par l'enseignant via le fichier de configuration `.graphens/config.yaml`.
+* **Comment ça marche ?** : Lorsqu'il est activé, si vous modifiez du code ou restez concentré sur la même ligne (ou dans la zone d'activité configurée) dans le même fichier pendant la durée spécifiée (5 minutes par défaut), l'extension détecte que vous rencontrez potentiellement une difficulté.
 * **Notification reçue** : Une notification discrète s'affiche en bas à droite de votre écran :
   > ℹ️ **Information**  
-  > *Vous modifiez autour de la ligne X dans "nom_du_fichier" depuis 5 minutes. Besoin d'aide ?*
+  > *Vous modifiez autour de la ligne X dans "nom_du_fichier" depuis Y minutes. Besoin d'aide ?*
 * **Vos options** :
   * **Demander à l'IA** : Si vous cliquez sur ce bouton, Graphens AI ouvre automatiquement l'interface de discussion avec le mode d'agent **Graphens** sélectionné et pré-remplit la question suivante pour vous faire gagner du temps :  
     `Je suis bloqué(e) à la ligne X de nom_du_fichier. Peux-tu m'aider à comprendre quel pourrait être le problème ?`
@@ -45,6 +45,7 @@ Ce fichier permet de structurer les métadonnées et les sources d'information d
 | `cours` | Chaîne | Le nom du cours associé (ex: `Algorithmique et Programmation`). |
 | `tp_name` | Chaîne | Le nom ou numéro du TP (ex: `TP2 - Listes Chaînées`). |
 | `sources` | Liste d'URLs | Une liste d'URLs pointant vers des ressources distantes (fichiers texte ou JSON) à inclure comme contexte. |
+| `blockers_detector` | Booléen ou Objet | Configuration du détecteur de blocage (désactivé par défaut). S'il est défini sur `true`, il s'active avec les paramètres par défaut. Il peut également être un objet contenant des options personnalisées : `period` (durée d'inactivité en minutes, défaut `5`) et `radius` (écart maximal en lignes pour rester dans la même zone d'intérêt, défaut `10`). |
 
 #### Exemple de fichier `.graphens/config.yaml` :
 ```yaml
@@ -54,6 +55,11 @@ tp_name: "TP3 - Arbres Binaires de Recherche"
 sources:
   - "https://mon-serveur.univ.fr/cours/lifap4/tp3_sujet.txt"
   - "https://mon-serveur.univ.fr/cours/lifap4/cahier_des_charges.json"
+
+# Activer le détecteur de blocage avec des paramètres personnalisés :
+blockers_detector:
+  period: 3  # Signaler après 3 minutes d'inactivité sur la même zone
+  radius: 5  # Zone d'intérêt restreinte à 5 lignes de rayon (écart de 5 lignes)
 ```
 
 ### 2. Ajouter des instructions locales

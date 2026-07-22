@@ -2,6 +2,7 @@ import { Subject, filter, distinctUntilChanged, switchMap, timer, map, tap } fro
 import logger from '../logger';
 import { sep } from 'path';
 import * as vscode from 'vscode'
+import type { BlockersDetectorConfig } from 'graphens-vscode-mcp'
 
 function parseFilename(abs: string): string {
   return abs.split(sep).at(-1) || 'undefined'
@@ -19,12 +20,16 @@ function extractAnchor(event: vscode.TextDocumentChangeEvent): AnchorKey | null 
   return { uri: event.document.uri.toString(), line };
 }
 
-function anchorChanged(prev: AnchorKey, next: AnchorKey): boolean {
-  return prev.uri !== next.uri || Math.abs(prev.line - next.line) > 10;
+function anchorChanged(prev: AnchorKey, next: AnchorKey, radius: number): boolean {
+  return prev.uri !== next.uri || Math.abs(prev.line - next.line) > radius;
 }
 
-export function startBlockedTracker(): vscode.Disposable {
-  logger.info('Starting blocked tracker')
+export function startBlockedTracker(config: BlockersDetectorConfig = {}): vscode.Disposable {
+  const period = config.period ?? 5;
+  const radius = config.radius ?? 10;
+  const periodMs = period * 60 * 1000;
+
+  logger.info(`Starting blocked tracker with period=${period}m, radius=${radius} lines`)
   const docChanges$ = new Subject<vscode.TextDocumentChangeEvent>()
   const disposable = vscode.workspace.onDidChangeTextDocument((event) => docChanges$.next(event))
 
@@ -42,16 +47,16 @@ export function startBlockedTracker(): vscode.Disposable {
 
     tap(event => logger.debug('Doc changed : ', event) ),
 
-    // Only propagate when the anchor actually changes (different file or >10 lines away)
+    // Only propagate when the anchor actually changes (different file or >radius lines away)
     distinctUntilChanged((prev, curr) => {
       const a = extractAnchor(prev)!;
       const b = extractAnchor(curr)!;
-      return !anchorChanged(a, b); // returning true = "equal" = suppress emission
+      return !anchorChanged(a, b, radius); // returning true = "equal" = suppress emission
     }),
-    // Every new anchor cancels the previous timer and starts a fresh 5-minute one.
+    // Every new anchor cancels the previous timer and starts a fresh one.
     // switchMap does the cancellation automatically.
     switchMap(anchorEvent =>
-      timer(5 * 60 * 1000).pipe(
+      timer(periodMs).pipe(
         // Carry the anchor event through to the subscriber
         map(() => anchorEvent)
       )
@@ -61,7 +66,7 @@ export function startBlockedTracker(): vscode.Disposable {
     const file = anchorEvent.document.fileName;
 
     vscode.window.showInformationMessage(
-      `Vous modifiez autour de la ligne ${line! + 1} dans "${parseFilename(file)}" depuis 5 minutes. Besoin d'aide ?`,
+      `Vous modifiez autour de la ligne ${line! + 1} dans "${parseFilename(file)}" depuis ${period} minute${period > 1 ? 's' : ''}. Besoin d'aide ?`,
       'Demander à l\'IA',
       'Fermer'
     ).then(res => {
