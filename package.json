@@ -46,45 +46,6 @@
           {
             "name": "reload_mcp",
             "description": "Recharge tous les serveurs MCP configurés."
-          },
-          {
-            "name": "debug_readme"
-          },
-          {
-            "name": "debug_graphens_files"
-          },
-          {
-            "name": "debug_open_files"
-          },
-          {
-            "name": "debug_highlighted_code"
-          },
-          {
-            "name": "debug_cheating_guard"
-          },
-          {
-            "name": "debug_history"
-          },
-          {
-            "name": "debug_compiler"
-          },
-          {
-            "name": "debug_language_server_errors"
-          },
-          {
-            "name": "debug_rag"
-          },
-          {
-            "name": "debug_mentioned_files"
-          },
-          {
-            "name": "debug_graphens_config"
-          },
-          {
-            "name": "debug_graphens_sources"
-          },
-          {
-            "name": "debug_session_id"
           }
         ]
       }
