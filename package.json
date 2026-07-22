@@ -85,9 +85,6 @@
           },
           {
             "name": "debug_session_id"
-          },
-          {
-            "name": "debug_mcp_tools"
           }
         ]
       }
