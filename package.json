@@ -3,6 +3,7 @@
   "publisher": "Graphens",
   "displayName": "Graphens AI",
   "description": "AI chat assistant integrated into VS Code sidebar",
+  "icon": "media/graphens.png",
   "version": "0.7.0",
   "packageManager": "pnpm@11.5.2",
   "repository": {
