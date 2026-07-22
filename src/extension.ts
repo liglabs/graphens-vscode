@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { ChatViewProvider } from './ChatViewProvider'
 import { GraphensParticipant } from './participant/GraphensParticipant'
 import { startBlockedTracker } from './proactiveNotifications/blockedTracker'
 import { getGraphensConfig } from 'graphens-vscode-shared'
@@ -15,7 +14,6 @@ export async function activate(context: vscode.ExtensionContext) {
     logger.options.level = LogLevels.debug
   }
   logger.info('Activating Graphens')
-  const provider = new ChatViewProvider(context)
   const graphens = new GraphensParticipant(context)
   const participant = vscode.chat.createChatParticipant(configStatic.participantId, graphens.responde)
 
@@ -42,7 +40,6 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
     participant.onDidReceiveFeedback(graphens.handleFeedback),
     vscode.lm.registerMcpServerDefinitionProvider('graphens-workspace-mcp', {
       provideMcpServerDefinitions() {

@@ -27,7 +27,7 @@ Ce document décrit l'architecture générale du projet Graphens AI et fournit l
 
 Graphens AI est une extension pour VS Code structurée sous forme de monorepo à l'aide de pnpm workspaces. Elle se compose de trois packages principaux :
 - **Extension principale** : L'extension VS Code qui sert de pont entre l'EDI et les modèles de langage.
-- **Frontend UI (`ui`)** : Interface graphique de chat de type webview, développée en Svelte et Tailwind CSS / DaisyUI, intégrée dans le panneau de chat latéral.
+- **Frontend UI (`ui`)** : Interface graphique de chat de type webview (Svelte / Tailwind CSS / DaisyUI). *Note : Ce package n'est pas actif actuellement dans l'extension VS Code, mais il est conservé dans le monorepo comme base de travail et template pour le futur.*
 - **Serveur MCP (`mcp`)** : Un serveur Model Context Protocol qui fournit des outils spécifiques au contexte du travail pratique (TP).
 
 ---
@@ -37,7 +37,6 @@ Graphens AI est une extension pour VS Code structurée sous forme de monorepo à
 Le point d'entrée de l'extension VS Code est situé dans le fichier [src/extension.ts](./src/extension.ts). 
 
 Lors du chargement de l'extension, la méthode [activate](./src/extension.ts#L11) configure et souscrit les composants suivants auprès de l'API VS Code :
-- **Webview Provider** : Initialise la classe [ChatViewProvider](./src/ChatViewProvider.ts) pour l'affichage de l'interface graphique de chat sous l'identifiant `graphens-ai.chat`.
 - **Chat Participant** : Enregistre le participant de chat via la méthode `vscode.chat.createChatParticipant` en associant l'identifiant de configuration [config.static.ts](./src/config.static.ts) et la méthode de traitement des requêtes [responde](./src/participant/GraphensParticipant.ts#L30) de la classe [GraphensParticipant](./src/participant/GraphensParticipant.ts#L22).
 - **McpServerDefinitionProvider** : Enregistre localement le serveur MCP sous l'identifiant `graphens-workspace-mcp` via la fonction `vscode.lm.registerMcpServerDefinitionProvider`. Cela déclare le serveur local pour les modèles de langage de VS Code sous forme d'une commande d'exécution standard d'un processus Node.js vers `mcp/dist/index.mjs` en passant le dossier racine de l'espace de travail (`projectRoot`).
 - **Blocked Tracker** : Lance l'écouteur proactif de détection des blocages en appelant [startBlockedTracker](./src/proactiveNotifications/blockedTracker.ts#L26).
@@ -109,7 +108,7 @@ Le projet utilise des outils récents du développement web pour automatiser les
    ```bash
    pnpm watch
    ```
-   Cette commande exécute simultanément les compilateurs en mode écoute pour l'extension principale (`watch:ext`), la webview UI (`watch:ui`), et le serveur MCP (`watch:mcp`).
+   Cette commande exécute simultanément les compilateurs en mode écoute pour l'extension principale (`watch:ext`), la webview UI template (`watch:ui`), et le serveur MCP (`watch:mcp`).
 4. **Exécution dans VS Code** : Ouvrir le projet dans VS Code, puis appuyer sur `F5` pour lancer une instance d'évaluation de l'extension ("Run Extension").
 
 ### Processus de Build
@@ -120,7 +119,7 @@ La compilation de production est orchestrée par Turborepo à l'aide de la confi
   pnpm vscode:prepublish
   ```
   Cette commande lance `turbo run build`, qui exécute de manière optimisée et parallèle les tâches suivantes :
-  - Compilation de l'interface utilisateur Svelte vers des ressources statiques injectées dans la webview via Vite (`build:ui`).
+  - Compilation de l'interface utilisateur Svelte template (`build:ui`). Note : Cette tâche n'est plus obligatoire pour le fonctionnement actuel de l'extension mais est conservée.
   - Compilation en TypeScript du serveur MCP (`build:mcp`).
   - Compilation en TypeScript de l'extension principale avec Vite (`build:ext`).
 

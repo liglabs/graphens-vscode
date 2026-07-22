@@ -50,28 +50,7 @@
         ]
       }
     ],
-    "viewsContainers": {
-      "secondarySidebar": [
-        {
-          "id": "graphens-chat",
-          "title": "Graphens AI",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "graphens-chat": [
-        {
-          "type": "webview",
-          "id": "graphens-ai.chat",
-          "name": "Chat"
-        }
-      ]
-    },
     "commands": [],
-    "menus": {
-      "view/title": []
-    },
     "configuration": {
       "title": "Graphens AI"
     }
