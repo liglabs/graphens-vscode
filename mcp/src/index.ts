@@ -8,7 +8,7 @@ import {
   getGraphensConfig,
   getGraphensFiles,
   getGraphensSources
-} from './functions.js'
+} from 'graphens-vscode-shared'
 
 // On MCP initialization you should grab project root path from command line arguments.
 const projectRoot = process.argv[2]

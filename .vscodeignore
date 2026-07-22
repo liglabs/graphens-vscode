@@ -1,7 +1,12 @@
 .vscode/**
 .vscode-test/**
 .turbo/**
-
+.changeset/**
+.claude/**
+.github/**
+turbo.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
 src/**
 .gitignore
 .eslintrc.json

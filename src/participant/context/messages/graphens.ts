@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { getGraphensFiles, getGraphensSources, GraphensSourceSchema } from 'graphens-vscode-mcp'
+import { getGraphensFiles, getGraphensSources, GraphensSourceSchema } from 'graphens-vscode-shared'
 import type { SessionCache } from '../../../utils/SessionCache'
 
 export async function getGraphensContextMessage(cache: SessionCache, onConfigError: (e:Error)=>void): Promise<string>{  

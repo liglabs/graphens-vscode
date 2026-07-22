@@ -1,13 +1,14 @@
 {
   "name": "graphens-vscode-mcp",
   "private": true,
-  "main": "src/functions.ts",
-  "types": "src/functions.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch"
   },
   "dependencies": {
+    "graphens-vscode-shared": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "ofetch": "^1.5.1",
     "ufo": "^1.6.4",

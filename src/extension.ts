@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { ChatViewProvider } from './ChatViewProvider'
 import { GraphensParticipant } from './participant/GraphensParticipant'
 import { startBlockedTracker } from './proactiveNotifications/blockedTracker'
+import { getGraphensConfig } from 'graphens-vscode-shared'
 import logger from './logger'
 import configStatic from './config.static'
 import { LogLevels } from 'consola'
@@ -14,7 +14,6 @@ export async function activate(context: vscode.ExtensionContext) {
     logger.options.level = LogLevels.debug
   }
   logger.info('Activating Graphens')
-  const provider = new ChatViewProvider(context)
   const graphens = new GraphensParticipant(context)
   const participant = vscode.chat.createChatParticipant(configStatic.participantId, graphens.responde)
 
@@ -34,9 +33,13 @@ export async function activate(context: vscode.ExtensionContext) {
     logger.error('Failed to read MCP version from version.json, falling back to extension version:', error)
   }
 
+  const config = await getGraphensConfig(projectRoot)
+  if (config && config.blockers_detector) {
+    const trackerConfig = typeof config.blockers_detector === 'object' ? config.blockers_detector : {}
+    context.subscriptions.push(startBlockedTracker(trackerConfig))
+  }
+
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, provider),
-    startBlockedTracker(),
     participant.onDidReceiveFeedback(graphens.handleFeedback),
     vscode.lm.registerMcpServerDefinitionProvider('graphens-workspace-mcp', {
       provideMcpServerDefinitions() {

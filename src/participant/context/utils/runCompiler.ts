@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { exec } from 'child_process'
 import { promisify } from 'util'
-import { getReadme } from 'graphens-vscode-mcp'
+import { getReadme } from 'graphens-vscode-shared'
 import { reportCompileCommandTool, reportCompileCommandSchema } from '../../../tools/reportCompileCommand'
 import { parseToolCallFromStream } from '../../../utils/parseToolCall'
 import z from 'zod'
