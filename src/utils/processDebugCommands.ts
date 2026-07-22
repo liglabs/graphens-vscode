@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import logger from '../logger'
-import { getReadme, getGraphensSources, getGraphensConfig } from 'graphens-vscode-mcp'
+import { getReadme, getGraphensSources, getGraphensConfig } from 'graphens-vscode-shared'
 import { extractLinks, getFilesByLink } from '../participant/context/utils/getFilesByLink'
 import { getCourseContent } from '../participant/context/utils/getCourseContent'
 import { getLanguageServerErrors } from '../participant/context/utils/getLanguageServerErrors'
@@ -9,7 +9,7 @@ import { getHistory, getHistoryAsMessages } from '../participant/context/utils/g
 import { isCheating } from '../participant/guards/cheating'
 import { getHighlightedCode } from '../participant/context/utils/getHighlightedCode'
 import { getOpenFiles } from '../participant/context/utils/getOpenFiles'
-import { getGraphensFiles } from 'graphens-vscode-mcp'
+import { getGraphensFiles } from 'graphens-vscode-shared'
 import { getSessionKey } from './getSessionKey'
 
 export async function processDebugCommands(

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { getReadme } from 'graphens-vscode-mcp'
+import { getReadme } from 'graphens-vscode-shared'
 
 export async function getReadmeContextMessage(): Promise<string>{
   const projectRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? ''

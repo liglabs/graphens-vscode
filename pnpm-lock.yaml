@@ -44,9 +44,9 @@ importers:
       eslint:
         specifier: ^10.4.0
         version: 10.4.0(jiti@2.7.0)(supports-color@8.1.1)
-      graphens-vscode-mcp:
+      graphens-vscode-shared:
         specifier: workspace:*
-        version: link:mcp
+        version: link:shared
       mocha:
         specifier: ^11.7.5
         version: 11.7.5
@@ -80,6 +80,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(supports-color@8.1.1)(zod@4.4.3)
+      graphens-vscode-shared:
+        specifier: workspace:*
+        version: link:../shared
       ofetch:
         specifier: ^1.5.1
         version: 1.5.1
@@ -102,6 +105,8 @@ importers:
       vite:
         specifier: ^5.4.21
         version: 5.4.21(@types/node@25.9.1)(lightningcss@1.32.0)(terser@5.48.0)
+
+  shared: {}
 
   ui:
     devDependencies:

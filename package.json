@@ -133,7 +133,7 @@
     "@changesets/cli": "^2.31.0",
     "@graphens/schemas": "github:liglabs/graphens-schemas",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "graphens-vscode-mcp": "workspace:*",
+    "graphens-vscode-shared": "workspace:*",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.1",
     "@types/vscode": "^1.125.0",

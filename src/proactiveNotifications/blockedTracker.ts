@@ -2,7 +2,7 @@ import { Subject, filter, distinctUntilChanged, switchMap, timer, map, tap } fro
 import logger from '../logger';
 import { sep } from 'path';
 import * as vscode from 'vscode'
-import type { BlockersDetectorConfig } from 'graphens-vscode-mcp'
+import type { BlockersDetectorConfig } from 'graphens-vscode-shared'
 
 function parseFilename(abs: string): string {
   return abs.split(sep).at(-1) || 'undefined'
