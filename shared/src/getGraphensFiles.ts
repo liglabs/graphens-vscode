@@ -16,7 +16,7 @@ export async function getGraphensFiles(projectRoot: string): Promise<GraphensFil
 
   try {
     const files = await fs.readdir(graphensDir)
-    const mdFiles = files.filter((f) => f.toLowerCase().endsWith('.md'))
+    const mdFiles = files.filter((f) => f.toLowerCase().endsWith('.md') && f.toLowerCase() !== 'agent.md')
     const result: GraphensFile[] = []
 
     for (const file of mdFiles) {

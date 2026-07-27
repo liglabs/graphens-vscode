@@ -65,6 +65,11 @@ blockers_detector:
 ### 2. Ajouter des instructions locales
 Vous pouvez également placer un ou plusieurs fichiers Markdown directement dans le dossier `.graphens/` (par exemple : `.graphens/consignes.md`, `.graphens/indices.md`).
 
-* Graphens AI va lire automatiquement tous les fichiers se terminant par `.md` dans le dossier `.graphens/`.
+* Graphens AI va lire automatiquement tous les fichiers se terminant par `.md` dans le dossier `.graphens/` (à l'exception de `.graphens/agent.md`).
 * Ces consignes seront combinées avec le contenu du `README.md` principal et les ressources distantes configurées dans les `sources`.
 * L'ensemble de ces informations sera transmis à l'IA en tant que contexte de référence pour guider et personnaliser ses réponses.
+
+### 3. Surcharger le comportement/prompt de l'assistant (`.graphens/agent.md`)
+Si vous souhaitez personnaliser ou modifier en profondeur le comportement global de l'assistant (comme modifier les directives de rôle ou adapter la méthode socratique), vous pouvez créer un fichier nommé `.graphens/agent.md` à la racine de votre dossier de TP.
+* Ce fichier est **exclu** du chargement automatique de contexte standard (décrit dans la section 2) afin d'éviter les doublons.
+* À la place, il est automatiquement injecté par l'extension comme **instruction système prioritaire** (immédiatement après le prompt de base) pour le chat participant et est également référencé et pris en compte par le profil de l'agent `@graphens`.
