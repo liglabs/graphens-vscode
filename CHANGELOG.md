@@ -1,5 +1,15 @@
 # graphens-vscode
 
+## 0.9.0
+
+### Minor Changes
+
+- ef46b14: Adapt basic prompts
+
+### Patch Changes
+
+- ef46b14: Configure agent customization
+
 ## 0.8.0
 
 ### Minor Changes
