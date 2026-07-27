@@ -14,6 +14,7 @@ import { getErrorsContextMessages } from './context/messages/errors'
 import { getFilesContextMessage } from './context/messages/files'
 import { initMcpClients, McpToolClient } from '../utils/mcp'
 import { getMcpContextMessages } from './context/messages/mcp'
+import { getCustomAgentPrompt } from './context/messages/customAgent'
 import logger from '../logger'
 import { ResponseMetadata } from '../models/ResponseMetadata'
 import { sendFeedback } from '../utils/sendFeedback'
@@ -104,20 +105,23 @@ export class GraphensParticipant {
       workspaceContext,
       errorsContext,
       filesContext,
-      mcpContext
+      mcpContext,
+      customAgentPrompt
     ] = await Promise.all([
       getReadmeContextMessage(),
       getGraphensContextMessage(cache, (e) => stream.markdown('$(error) Erreur en lisant `.graphens/config.yaml` pour charger les fichiers du course')),
       getWorkspaceContextMessage(),
       getErrorsContextMessages(ctx, cache),
       getFilesContextMessage(request.prompt, cache),
-      getMcpContextMessages(ctx, this.mcpClientsPromise, [vscode.LanguageModelChatMessage.User(request.prompt)])
+      getMcpContextMessages(ctx, this.mcpClientsPromise, [vscode.LanguageModelChatMessage.User(request.prompt)]),
+      getCustomAgentPrompt()
     ])
 
     stream.progress('Génération de la réponse…')
 
     const messages: vscode.LanguageModelChatMessage[] = [
       BASE_PROMPT,
+      ...(customAgentPrompt ? [customAgentPrompt] : []),
       readmeContext,
       graphensContext,
       workspaceContext,
