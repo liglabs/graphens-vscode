@@ -1,0 +1,15 @@
+{
+  "name": "graphens-vscode-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx src/build.ts"
+  },
+  "dependencies": {
+    "graphens-vscode-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^6.0.3"
+  }
+}

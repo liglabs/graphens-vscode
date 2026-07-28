@@ -66,6 +66,7 @@
     "build:ui": "pnpm --filter graphens-vscode-ui build",
     "build:mcp": "pnpm --filter graphens-vscode-mcp build",
     "build:ext": "vite build --config vite.extension.config.ts",
+    "build:web": "pnpm --filter graphens-vscode-web build",
     "dev:ui": "pnpm --filter graphens-vscode-ui dev",
     "package": "npx vsce package",
     "changeset": "changeset"
@@ -74,7 +75,6 @@
     "@changesets/cli": "^2.31.0",
     "@graphens/schemas": "github:liglabs/graphens-schemas",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "graphens-vscode-shared": "workspace:*",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.1",
     "@types/vscode": "^1.125.0",
@@ -83,7 +83,9 @@
     "@vscode/test-electron": "^2.5.2",
     "concurrently": "^10.0.0",
     "consola": "^3.4.2",
+    "defu": "^6.1.7",
     "eslint": "^10.4.0",
+    "graphens-vscode-shared": "workspace:*",
     "mocha": "^11.7.5",
     "ofetch": "^1.5.1",
     "rxjs": "^7.8.2",
@@ -97,6 +99,7 @@
   "bundledDependencies": [
     "@modelcontextprotocol/sdk",
     "consola",
+    "defu",
     "ufo",
     "rxjs",
     "yaml",

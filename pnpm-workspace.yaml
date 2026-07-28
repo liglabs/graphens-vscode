@@ -3,6 +3,8 @@ packages:
   - ui
   - mcp
   - shared
+  - web
+
 
 onlyBuiltDependencies:
   - esbuild

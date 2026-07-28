@@ -10,8 +10,11 @@
     "build:mcp": {
       "outputs": ["mcp/dist/**"]
     },
+    "build:web": {
+      "outputs": ["web/dist/**"]
+    },
     "build": {
-      "dependsOn": ["build:ext", "build:ui", "build:mcp"]
+      "dependsOn": ["build:ext", "build:ui", "build:mcp", "build:web"]
     },
     "package": {
       "dependsOn": ["build:ext", "build:ui", "build:mcp"],
