@@ -66,6 +66,7 @@
     "build:ui": "pnpm --filter graphens-vscode-ui build",
     "build:mcp": "pnpm --filter graphens-vscode-mcp build",
     "build:ext": "vite build --config vite.extension.config.ts",
+    "build:web": "pnpm --filter graphens-vscode-web build",
     "dev:ui": "pnpm --filter graphens-vscode-ui dev",
     "package": "npx vsce package",
     "changeset": "changeset"

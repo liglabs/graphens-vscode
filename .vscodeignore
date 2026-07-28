@@ -18,4 +18,5 @@ ui
 !ui/dist/**
 mcp
 !mcp/dist/**
+web
 node_modules/**
