@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as yaml from 'yaml'
+import { defu } from 'defu'
 import { exists } from './exists.js'
 import { GraphensConfigSchema } from './GraphensConfig.js'
 import type { GraphensConfig } from './GraphensConfig.js'
@@ -10,21 +11,40 @@ export async function getGraphensConfig(
   projectRoot: string,
   onError?: (e: Error) => void
 ): Promise<GraphensConfig | null> {
-  let configPath = path.join(projectRoot, '.graphens', 'config.yaml')
-  let hasConfig = await exists(configPath)
+  const jsonPath = path.join(projectRoot, '.graphens', 'config.json')
+  const yamlPath = path.join(projectRoot, '.graphens', 'config.yaml')
+  const ymlPath = path.join(projectRoot, '.graphens', 'config.yml')
 
-  if (!hasConfig) {
-    configPath = path.join(projectRoot, '.graphens', 'config.yml')
-    hasConfig = await exists(configPath)
-  }
-
-  if (!hasConfig) {
-    return null
-  }
+  let jsonConfig: any = null
+  let yamlConfig: any = null
+  let ymlConfig: any = null
+  let hasAnyConfig = false
 
   try {
-    const content = await fs.readFile(configPath, 'utf-8')
-    return GraphensConfigSchema.parse(yaml.parse(content))
+    if (await exists(jsonPath)) {
+      hasAnyConfig = true
+      const content = await fs.readFile(jsonPath, 'utf-8')
+      jsonConfig = JSON.parse(content)
+    }
+
+    if (await exists(yamlPath)) {
+      hasAnyConfig = true
+      const content = await fs.readFile(yamlPath, 'utf-8')
+      yamlConfig = yaml.parse(content)
+    }
+
+    if (await exists(ymlPath)) {
+      hasAnyConfig = true
+      const content = await fs.readFile(ymlPath, 'utf-8')
+      ymlConfig = yaml.parse(content)
+    }
+
+    if (!hasAnyConfig) {
+      return null
+    }
+
+    const merged = defu(jsonConfig || {}, yamlConfig || {}, ymlConfig || {})
+    return GraphensConfigSchema.parse(merged)
   } catch (e: any) {
     console.error(e)
     if (onError) {
