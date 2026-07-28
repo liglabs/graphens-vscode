@@ -17,7 +17,7 @@ if (!existsSync(distDir)) {
 const schema = GraphensConfigSchema.toJSONSchema()
 
 writeFileSync(
-  join(distDir, 'schema.json'),
+  join(distDir, 'graphens_config.schema.json'),
   JSON.stringify(schema, null, 2)
 )
 
