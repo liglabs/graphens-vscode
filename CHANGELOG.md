@@ -1,5 +1,11 @@
 # graphens-vscode
 
+## 0.9.1
+
+### Patch Changes
+
+- cdebb8a: New options to define graphens config
+
 ## 0.9.0
 
 ### Minor Changes
