@@ -99,7 +99,10 @@ Le projet utilise des outils récents du développement web pour automatiser les
 
 ### Installation en Mode Développement
 
-1. **Prérequis** : Avoir installé Node.js (version 26 de préférence) et `pnpm`.
+1. **Prérequis** : Avoir installé Node.js (version 26 de préférence) et `pnpm`. De plus, `@vscode/vsce` doit être installé globalement (l'empaquetage de l'extension ne fonctionne correctement que de cette manière) :
+   ```bash
+   npm install -g @vscode/vsce
+   ```
 2. **Installation des dépendances** : Exécuter la commande suivante à la racine :
    ```bash
    pnpm install
@@ -113,15 +116,20 @@ Le projet utilise des outils récents du développement web pour automatiser les
 
 ### Processus de Build
 
-La compilation de production est orchestrée par Turborepo à l'aide de la configuration définie dans [package.json](./package.json).
-- **Compilation de Production** :
-  ```bash
-  pnpm vscode:prepublish
-  ```
-  Cette commande lance `turbo run build`, qui exécute de manière optimisée et parallèle les tâches suivantes :
-  - Compilation de l'interface utilisateur Svelte template (`build:ui`). Note : Cette tâche n'est plus obligatoire pour le fonctionnement actuel de l'extension mais est conservée.
-  - Compilation en TypeScript du serveur MCP (`build:mcp`).
-  - Compilation en TypeScript de l'extension principale avec Vite (`build:ext`).
+Pour compiler et générer le fichier d'extension final `.vsix` pour la production, utilisez l'outil `vsce` (qui doit être installé globalement) :
+```bash
+vsce package
+```
+ou via la commande du projet :
+```bash
+pnpm package
+```
+L'exécution de cette commande va automatiquement déclencher le script de pré-publication (`vscode:prepublish` qui lance `turbo run build`) afin de compiler de manière optimisée et parallèle tous les sous-projets du monorepo :
+- Compilation de l'interface utilisateur Svelte template (`build:ui`). Note : Cette tâche n'est plus obligatoire pour le fonctionnement actuel de l'extension mais est conservée.
+- Compilation en TypeScript du serveur MCP (`build:mcp`).
+- Compilation en TypeScript de l'extension principale avec Vite (`build:ext`).
+
+Après l'exécution, le fichier `.vsix` de l'extension sera créé à la racine du projet.
 
 ### Versionnage avec Changesets
 
@@ -140,7 +148,7 @@ Le processus de publication est entièrement automatisé par un workflow GitHub 
 - Il installe les dépendances avec `pnpm install --frozen-lockfile` et configure `@vscode/vsce` globalement.
 - Il utilise l'action officielle Changesets (`changesets/action@v1`) :
   - **S'il y a des changesets non appliqués** : L'action crée ou met à jour une Pull Request nommée "Version Packages". Cette PR applique les versions de façon propre.
-  - **Dès que cette Pull Request de version est mergée** : L'action détecte l'absence de changesets actifs, déclenche l'empaquetage de l'extension via la commande `pnpm package` (qui appelle `npx vsce package`), puis crée automatiquement une Release GitHub avec le tag `v<version>`, génère les notes de version, et téléverse le fichier `.vsix` d'extension généré (par exemple `graphens-vscode-0.7.0.vsix`).
+  - **Dès que cette Pull Request de version est mergée** : L'action détecte l'absence de changesets actifs, déclenche l'empaquetage de l'extension via la commande `pnpm package` (qui appelle `vsce package`), puis crée automatiquement une Release GitHub avec le tag `v<version>`, génère les notes de version, et téléverse le fichier `.vsix` d'extension généré (par exemple `graphens-vscode-0.7.0.vsix`).
 
 ### Installation Finale par l'Utilisateur
 
