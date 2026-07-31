@@ -1,5 +1,11 @@
 # graphens-vscode
 
+## 1.0.0
+
+### Major Changes
+
+- 48e8a5a: Version 1.0.0
+
 ## 0.9.1
 
 ### Patch Changes
