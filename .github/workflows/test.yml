@@ -15,7 +15,11 @@ jobs:
       pull-requests: write
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: 
+          - ubuntu-latest
+          # Stopped working the last day after release 1.0.0, no changes compred to 0.9.1 :/
+          # - macos-latest
+          # - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repo
